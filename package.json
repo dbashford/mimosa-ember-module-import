@@ -1,0 +1,30 @@
+{
+  "name": "mimosa-ember-resolver",
+  "version": "0.1.0",
+  "homepage": "https://github.com/dbashford/mimosa-ember-resolver",
+  "author": "David Bashford",
+  "description": "A build tooling resolver solution for Ember apps via Mimosa",
+  "contributors": [
+    {
+      "name": "David Bashford",
+      "email": "dbashford@hotmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbashford/mimosa-ember-resolver"
+  },
+  "keywords": [
+    "mimosa",
+    "mmodule",
+    "ember",
+    "resolver",
+    "build"
+  ],
+  "dependencies": {},
+  "main": "./src/index",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
