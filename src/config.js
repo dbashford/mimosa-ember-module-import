@@ -40,13 +40,14 @@ exports.placeholder = function() {
            "                                         # for. namespace = root folder. If namespace is null\n" +
            "                                         # the entire project is used. namespace is relative\n" +
            "                                         # to watch.javascriptDir.\n" +
-           "      additional: [],                    # Any additional/shared resources, either other\n" +
-           "                                         # namespaces or files to include in this manifest\n" +
+           "      additional: [],                    # Paths to additional/shared resources to include in the\n" +
+           "                                         # manifest. Paths are relative to the namespace. Use '../'\n" +
+           "                                         # paths to include files/folders outside the namespace\n" +
            "      exclude:[]                         # array of strings or regexes that match files\n" +
            "                                         # to not include in this manifest. Strings are paths\n" +
-           "                                         # that can be relative to the manifest or absolute.\n" +
+           "                                         # that can be relative to the namespace or absolute.\n" +
            "      manifestFile: \"app-modules\"        # The name of the manifest file to output.\n" +
-           "                                         # '.js' is assumed\n" +
+           "                                         # '.js' is assumed. Path is relative to namespace\n" +
            "    }],                                  # \n" +
            "    emberDirs: [                         # Ember directories that contain files to\n" +
            "      \"adapters\",                        # include in a manifest file. Any files in\n" +
@@ -81,20 +82,26 @@ exports.validate = function ( config, validators ) {
       er.apps.forEach( function( app ) {
         if ( validators.ifExistsIsString( errors, "emberResolver.apps.namespace", app.namespace ) ) {
 
+          var w = config.watch;
           // namespace can be null
           if ( app.namespace ) {
-            app.namespace = path.join( config.watch.javascriptDir, app.namespace );
+            app.namespace = path.join( w.sourceDir, w.javascriptDir, app.namespace );
           } else {
-            app.namespace = config.watch.javascriptDir;
+            app.namespace = path.join( w.sourceDir, w.javascriptDir);
           }
 
           if ( validators.ifExistsIsString( errors, "emberResolver.apps.manifestFile", app.manifestFile ) ) {
             // manifestFile is relative to namespace
             app.manifestFile = path.join( app.namespace, app.manifestFile + ".js" );
           }
+
+          if ( validators.ifExistsIsArrayOfStrings( errors, "emberResolver.apps.additional", app.additional ) ) {
+            app.additional = app.additional.map( function( add ) {
+              return path.join( app.namespace, add );
+            });
+          }
         }
 
-        validators.ifExistsIsArrayOfStrings( errors, "emberResolver.apps.additional", app.additional );
         validators.ifExistsFileExcludeWithRegexAndString( errors, "emberResolver.apps.exclude", app, app.namespace );
       });
     }
@@ -102,12 +109,16 @@ exports.validate = function ( config, validators ) {
     validators.isArrayOfStringsMustExist( errors, "emberResolver.emberDirs", er.emberDirs );
   }
 
+
   if ( !errors.length ) {
     // populate each namespace with emberdirs for use of use later
     er.apps.forEach( function( app ) {
       app.emberDirs = er.emberDirs.map( function( emberDir ) {
         return path.join( app.namespace, emberDir );
       });
+
+      app.emberDirs = app.emberDirs.concat( app.additional );
+
     });
   }
 
