@@ -21,17 +21,27 @@ var __transformPath = function( namespace, inputFileName ) {
 
 // Output manifest file after creating
 // proper string output
-var __writeManifest = function( manifest, done ) {
-  var output = "";
+var __writeManifest = function( mimosaConfig, manifest, done ) {
+  var output = ""
+    , files = manifest.files
+    , namespace = manifest.namespace;
 
-  var files = manifest.files;
-  var namespace = manifest.namespace;
   files.forEach( function( file ) {
     var outPath = __transformPath( namespace, file );
     output += "require('" + outPath + "');\n";
   });
 
-  fs.writeFile( manifest.manifestFile, output, function() {
+  fs.writeFile( manifest.manifestFile, output, function( err ) {
+    if ( err ) {
+      mimosaConfig.log.error( "ember-module-import: Error writing manifest file", err );
+    } else {
+      mimosaConfig.log.info( "ember-module-import: Application manifest file [[ " + manifest.manifestFile + " ]] successfullly written." );
+      // if writing empty manifest, let the user know
+      if ( !output.length ) {
+        mimosaConfig.log.info("ember-module-import: [[ " + manifest.manifestFile + " ]] is an empty file." );
+      }
+    }
+
     done( true );
   });
 
@@ -51,11 +61,9 @@ var _processFileUpdate = function( mimosaConfig, options, next ) {
   next();
 };
 
-
-
 // As each javascript file is built during the initial build
-// determine if its a file to include in the manifest
-// and if it is, add it to the manifests files
+// determine if it is a file to include in a manifest
+// and if it is, add it to that manifest's files
 var _processBuild = function( mimosaConfig, options, next ) {
   if ( options.files && options.files.length) {
 
@@ -65,7 +73,8 @@ var _processBuild = function( mimosaConfig, options, next ) {
       // iterate over each app config
       appManifestConfig.forEach( function( manifest ) {
 
-        // iterate over each emberDir/path to include
+        // iterate over each emberDir/path to check
+        // if file is one to include in a manifest
         var len = manifest.emberDirs.length;
         for ( var i = 0; i < len; i++ ) {
           if ( file.inputFileName.indexOf( manifest.emberDirs[i] ) === 0 ) {
@@ -92,13 +101,17 @@ var _buildDone = function( mimosaConfig, options, next ) {
     return next();
   }
 
-  // setup cache update
+  // setup cache update, callers of "done" will
+  // provide flag to inform if cache update is needed
   var completed = 0, appManifestConfigLength = appManifestConfig.length, updateCache = false;
   var done = function( needsCacheUpdate ) {
     if ( needsCacheUpdate ) {
       updateCache = true;
     }
     if ( ++completed === appManifestConfigLength ) {
+
+      // Cache will be updated if any manifest file
+      // was written during processing
       if ( updateCache ) {
         cache.writeCache( mimosaConfig, appManifestConfig, next );
       } else {
@@ -113,8 +126,10 @@ var _buildDone = function( mimosaConfig, options, next ) {
     manifest.files = _.uniq( manifest.files );
     manifest.files.sort();
 
-    // if not already forced to write manifest file
-    // only want to write file if files changed vs
+    // forceWrite can be set to true if the output
+    // file to be written is missing. In that case
+    // it is necessary.
+    // Otherwise want to write file if files changed vs
     // cache set of files
     if ( !manifest.forceWrite ) {
       var write = true;
@@ -130,7 +145,7 @@ var _buildDone = function( mimosaConfig, options, next ) {
     // write manifest file
     if ( manifest.forceWrite || write ) {
       manifest.forceWrite = false;
-      __writeManifest( manifest, done );
+      __writeManifest( mimosaConfig, manifest, done );
     } else {
       done( false );
     }
