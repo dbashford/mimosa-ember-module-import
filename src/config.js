@@ -1,11 +1,12 @@
 "use strict";
 
-var path = require( "path" );
+var path = require( "path" )
+  , cache = require( "./cache" );
 
 exports.defaults = function() {
   return {
-    emberResolver: {
-      cacheDir: ".mimosa/emberResolver",
+    emberModuleImport: {
+      cacheDir: ".mimosa/emberModuleImport",
       apps: [{
         namespace: null,
         additional: [],
@@ -31,8 +32,8 @@ exports.defaults = function() {
 };
 
 exports.placeholder = function() {
-  var ph = "  emberResolver:                         # settings for ember-resolver module\n" +
-           "    cacheDir:\".mimosa/emberResolver\"     # location to place cache. To not cache, set\n" +
+  var ph = "  emberModuleImport:                         # settings for ember-resolver module\n" +
+           "    cacheDir:\".mimosa/emberModuleImport\"     # location to place cache. To not cache, set\n" +
            "                                         # this to null. Path is relative to project root.\n" +
            "    apps: [{                             # list of apps to create manifests for, one entry\n" +
            "                                         # in the array for each app in your mimosa project\n" +
@@ -67,59 +68,69 @@ exports.placeholder = function() {
   return ph;
 };
 
-exports.validate = function ( config, validators ) {
+exports.validate = function ( mimosaConfig, validators ) {
   var errors = []
-    , er = config.emberResolver;
+    , er = mimosaConfig.emberModuleImport;
 
-  if ( validators.ifExistsIsObject( errors, "emberResolver config", er ) ) {
-    if ( validators.ifExistsIsString(errors, "emberResolver.cacheDir", er.cacheDir ) ) {
+  if ( validators.ifExistsIsObject( errors, "emberModuleImport config", er ) ) {
+    if ( validators.ifExistsIsString(errors, "emberModuleImport.cacheDir", er.cacheDir ) ) {
       if ( er.cacheDir ) {
-        er.cacheDir = path.join( config.root, er.cacheDir );
+        // build full paths to directory and file
+        er.cacheDir = path.join( mimosaConfig.root, er.cacheDir );
+        er.cacheFile = path.join( er.cacheDir, "cache.json");
       }
     }
 
-    if ( validators.isArrayOfObjects( errors, "emberResolver.apps", er.apps ) ) {
+    if ( validators.isArrayOfObjects( errors, "emberModuleImport.apps", er.apps ) ) {
       er.apps.forEach( function( app ) {
-        if ( validators.ifExistsIsString( errors, "emberResolver.apps.namespace", app.namespace ) ) {
 
-          var w = config.watch;
-          // namespace can be null
-          if ( app.namespace ) {
-            app.namespace = path.join( w.sourceDir, w.javascriptDir, app.namespace );
-          } else {
-            app.namespace = path.join( w.sourceDir, w.javascriptDir);
+        // namespace can be null
+        if ( !app.namespace ) {
+          app.namespace = "";
+        }
+
+        if ( validators.ifExistsIsString( errors, "emberModuleImport.apps.namespace", app.namespace ) ) {
+          var w = mimosaConfig.watch;
+          app.namespace = path.join( w.sourceDir, w.javascriptDir, app.namespace );
+
+          if ( validators.ifExistsIsString( errors, "emberModuleImport.apps.manifestFile", app.manifestFile ) ) {
+            // build full path to manifest file
+            // manifestFile is relative to namespace and gets written to output directory
+            app.manifestFile = path.join( app.namespace, app.manifestFile + ".js" )
+              .replace( w.sourceDir, w.compiledDir );
           }
 
-          if ( validators.ifExistsIsString( errors, "emberResolver.apps.manifestFile", app.manifestFile ) ) {
-            // manifestFile is relative to namespace
-            app.manifestFile = path.join( app.namespace, app.manifestFile + ".js" );
-          }
-
-          if ( validators.ifExistsIsArrayOfStrings( errors, "emberResolver.apps.additional", app.additional ) ) {
+          if ( validators.ifExistsIsArrayOfStrings( errors, "emberModuleImport.apps.additional", app.additional ) ) {
             app.additional = app.additional.map( function( add ) {
+              // additional files is relative to namespace
+              // can use "../common" for things outside namespace
               return path.join( app.namespace, add );
             });
           }
         }
 
-        validators.ifExistsFileExcludeWithRegexAndString( errors, "emberResolver.apps.exclude", app, app.namespace );
+        validators.ifExistsFileExcludeWithRegexAndString( errors, "emberModuleImport.apps.exclude", app, app.namespace );
       });
     }
 
-    validators.isArrayOfStringsMustExist( errors, "emberResolver.emberDirs", er.emberDirs );
+    validators.isArrayOfStringsMustExist( errors, "emberModuleImport.emberDirs", er.emberDirs );
   }
 
 
   if ( !errors.length ) {
-    // populate each namespace with emberdirs for use of use later
+    // populate each namespace with fullpath emberdir for ease of use later
+    // add additioal files to the emberDirs
     er.apps.forEach( function( app ) {
       app.emberDirs = er.emberDirs.map( function( emberDir ) {
         return path.join( app.namespace, emberDir );
-      });
-
-      app.emberDirs = app.emberDirs.concat( app.additional );
-
+      }).concat( app.additional );
     });
+
+    // is watch, need to deal with cache
+    // build will recompile everything so no need for cache
+    if ( mimosaConfig.isWatch ) {
+      cache.readCache( mimosaConfig );
+    }
   }
 
   return errors;
