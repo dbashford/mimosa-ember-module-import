@@ -1,5 +1,6 @@
 exports.config = {
   emberModuleImport: {
+    cacheDir: ".mimosa/someOtherDirectory",
     apps: [{
       namespace: "blogger",
       additional: [],

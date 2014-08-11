@@ -3,15 +3,13 @@ var fs = require( 'fs' )
   , wrench = require( 'wrench' )
   , exec = require('child_process').exec;
 
-var generateImportantPaths = function( projectName ) {
-
+var generateImportantPaths = function( projectName, alternateCache ) {
   var projectDirectory = path.join( __dirname, projectName );
   var mimosaConfig = path.join( __dirname, projectName, "mimosa-config.js" );
   var publicDirectory = path.join( projectDirectory, "public" );
   var cacheDirectory = path.join( projectDirectory, ".mimosa" );
-  var cacheFile = path.join( projectDirectory, ".mimosa", "emberModuleImport", "cache.json" );
+  var cacheFile = path.join( projectDirectory, ".mimosa", alternateCache || "emberModuleImport", "cache.json" );
   var manifestFile = path.join( publicDirectory, "javascripts", "blogger", "modules.js");
-
 
   return {
     projectDir: projectDirectory,
@@ -62,7 +60,11 @@ describe('When starting from scratch with no cache', function() {
       done();
       process.chdir(cwd);
     });
-  })
+  });
+
+  after(function() {
+    cleanUp( paths );
+  });
 
   it( 'it will build a manifest file', function() {
     expect( fs.existsSync( paths.manifest ) ).to.be.true;
@@ -81,3 +83,33 @@ describe('When starting from scratch with no cache', function() {
   });
 
 });
+
+describe('When configured to write to different cache folder', function() {
+  var paths = generateImportantPaths( "projectone", "someOtherDirectory" );
+
+  this.timeout(15000);
+
+  after(function() {
+    cleanUp( paths );
+  });
+
+  before(function(done){
+    cleanUp( paths );
+    writeConfig( "alternate-cache", "projectone" );
+    var cwd = process.cwd();
+    process.chdir( path.join( paths.projectDir ) );
+    exec( "mimosa build", function ( err, sout, serr ) {
+      done();
+      process.chdir(cwd);
+    });
+  })
+
+  it( 'it will write to a different cache folder', function() {
+    var cacheFileJSON = require( paths.cacheFile );
+    expect(Object.keys(cacheFileJSON).length).to.equal(1);
+    expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(4);
+    expect(Object.keys(cacheFileJSON)[0]).to.equal(paths.manifest);
+  });
+});
+
+
