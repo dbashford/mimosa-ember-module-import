@@ -44,7 +44,6 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
 
     done( true );
   });
-
 };
 
 var _processFileAddRemove = function( mimosaConfig, options, next ) {
