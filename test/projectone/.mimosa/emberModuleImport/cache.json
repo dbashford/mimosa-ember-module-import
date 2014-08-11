@@ -1,0 +1,8 @@
+{
+  "/Users/dbashford/mygithub/mimosa-ember-module-import/test/projectone/public/javascripts/blogger/modules.js": [
+    "/Users/dbashford/mygithub/mimosa-ember-module-import/test/projectone/assets/javascripts/blogger/controllers/post_controller.js",
+    "/Users/dbashford/mygithub/mimosa-ember-module-import/test/projectone/assets/javascripts/blogger/helpers/helpers.js",
+    "/Users/dbashford/mygithub/mimosa-ember-module-import/test/projectone/assets/javascripts/blogger/routes/post_route.js",
+    "/Users/dbashford/mygithub/mimosa-ember-module-import/test/projectone/assets/javascripts/blogger/routes/posts_route.js"
+  ]
+}
