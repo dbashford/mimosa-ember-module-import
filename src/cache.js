@@ -24,6 +24,7 @@ exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
   manifestConfigs.forEach( function( conf ) {
     cacheObject[conf.manifestFile] = conf.files;
   });
+
   var cacheString = JSON.stringify( cacheObject, null, 2 );
   makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
   fs.writeFile( mimosaConfig.emberModuleImport.cacheFile, cacheString, function(err) {

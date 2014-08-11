@@ -1,21 +1,18 @@
-/*
-
 var fs = require( 'fs' )
   , path = require( 'path' )
   , exec = require('child_process').exec
   , utils = require( './util' )
-  , projectName = "alternate-cache"
-  , env = utils.setupProjectData( "basic")
+  , env = utils.setupProjectData( "defaults" )
   ;
 
-utils.setupModuleData( env, null, "blogger"  );
+utils.setupModuleData( env );
 
-describe('When starting from scratch with no cache', function() {
+describe('When not provided a configuration', function() {
   this.timeout(15000);
 
   before(function(done){
     utils.cleanProject( env );
-    utils.setupProject( env, "namespaced" );
+    utils.setupProject( env, "defaults" )
 
     var cwd = process.cwd();
     process.chdir( env.projectDir );
@@ -46,5 +43,3 @@ describe('When starting from scratch with no cache', function() {
   });
 
 });
-
-*/
