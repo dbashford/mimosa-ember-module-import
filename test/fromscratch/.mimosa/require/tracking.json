@@ -1,0 +1,105 @@
+{
+  "shims": {
+    "/javascripts/common.js": {
+      "handlebars": {
+        "exports": "Handlebars"
+      },
+      "ember": {
+        "deps": [
+          "handlebars",
+          "jquery"
+        ],
+        "exports": "Ember"
+      },
+      "showdown": {
+        "exports": "Showdown"
+      }
+    }
+  },
+  "deps": {
+    "/javascripts/blogger-main.js": [
+      "common",
+      "ember",
+      "app",
+      "blogger/router",
+      "blogger/modules"
+    ],
+    "/javascripts/blogger/app.js": [
+      "ember",
+      "exports"
+    ],
+    "/javascripts/blogger/controllers/post_controller.js": [
+      "ember",
+      "exports"
+    ],
+    "/javascripts/blogger/data/posts.js": [
+      "exports"
+    ],
+    "/javascripts/blogger/helpers/helpers.js": [
+      "ember",
+      "showdown",
+      "moment"
+    ],
+    "/javascripts/blogger/router.js": [
+      "exports"
+    ],
+    "/javascripts/blogger/routes/post_route.js": [
+      "ember",
+      "../data/posts",
+      "exports"
+    ],
+    "/javascripts/blogger/routes/posts_route.js": [
+      "ember",
+      "../data/posts",
+      "exports"
+    ],
+    "/javascripts/common.js": []
+  },
+  "aliases": {
+    "/javascripts/common.js": {
+      "app": "blogger/app",
+      "jquery": "vendor/jquery/jquery",
+      "handlebars": "vendor/handlebars/handlebars",
+      "ember": "vendor/ember/ember",
+      "lodash": "vendor/lodash/lodash.compat",
+      "showdown": "vendor/showdown/showdown",
+      "moment": "vendor/moment/moment"
+    }
+  },
+  "mappings": {
+    "/javascripts/common.js": null
+  },
+  "packages": {
+    "/javascripts/common.js": null
+  },
+  "originalConfig": {
+    "shim": {
+      "handlebars": {
+        "exports": "Handlebars"
+      },
+      "ember": {
+        "deps": [
+          "handlebars",
+          "jquery"
+        ],
+        "exports": "Ember"
+      },
+      "showdown": {
+        "exports": "Showdown"
+      }
+    },
+    "paths": {
+      "app": "blogger/app",
+      "jquery": "vendor/jquery/jquery",
+      "handlebars": "vendor/handlebars/handlebars",
+      "ember": "vendor/ember/ember",
+      "lodash": "vendor/lodash/lodash.compat",
+      "showdown": "vendor/showdown/showdown",
+      "moment": "vendor/moment/moment"
+    }
+  },
+  "requireFiles": [
+    "/javascripts/blogger-main.js",
+    "/javascripts/common.js"
+  ]
+}

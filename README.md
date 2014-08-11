@@ -13,3 +13,11 @@ Add `'ember-resolver'` to your list of modules.  That's all!  Mimosa will instal
 
 ```javascript
 ```
+
+## To run tests
+
+* `git clone` the repo
+* `cd mimosa-ember-module-import`
+* Run `npm install`
+* Run `mimosa mod:install`
+* `npm test`

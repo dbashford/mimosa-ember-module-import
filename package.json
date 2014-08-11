@@ -1,9 +1,9 @@
 {
-  "name": "mimosa-ember-resolver",
+  "name": "mimosa-ember-module-import",
   "version": "0.1.0",
-  "homepage": "https://github.com/dbashford/mimosa-ember-resolver",
+  "homepage": "https://github.com/dbashford/mimosa-ember-module-import",
   "author": "David Bashford",
-  "description": "A build tooling resolver solution for Ember apps via Mimosa",
+  "description": "A Mimosa module builder solution for Ember apps",
   "contributors": [
     {
       "name": "David Bashford",
@@ -12,19 +12,28 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbashford/mimosa-ember-resolver"
+    "url": "https://github.com/dbashford/mimosa-ember-module-import"
   },
   "keywords": [
     "mimosa",
     "mmodule",
     "ember",
-    "resolver",
-    "build"
+    "build",
+    "module",
+    "import",
+    "manifest"
   ],
   "dependencies": {
     "lodash": "2.4.1",
     "wrench": "1.5.8"
   },
+  "devDependencies": {
+    "mocha": "1.9.0",
+    "chai": "1.5.0"
+  },
+  "scripts": {
+     "test": "node_modules/.bin/mocha"
+   },
   "main": "./src/index",
   "license": "MIT",
   "engines": {
