@@ -13,5 +13,10 @@ exports.config = {
     'es6-module-transpiler',
     'copy',
     'require'
-  ]
+  ],
+  logger: {
+    growl: {
+      enabled: false
+    }
+  }
 };

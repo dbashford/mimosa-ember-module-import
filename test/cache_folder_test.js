@@ -1,5 +1,3 @@
-/*
-
 var fs = require( 'fs' )
   , path = require( 'path' )
   , exec = require('child_process').exec
@@ -36,5 +34,3 @@ describe('When configured to write to different cache folder', function() {
     expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
   });
 });
-
-*/

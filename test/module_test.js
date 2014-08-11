@@ -1,5 +1,3 @@
-/*
-
 var fs = require( 'fs' )
   , path = require( 'path' )
   , exec = require('child_process').exec
@@ -46,5 +44,3 @@ describe('When starting from scratch with no cache', function() {
   });
 
 });
-
-*/
