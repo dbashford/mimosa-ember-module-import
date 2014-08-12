@@ -35,7 +35,7 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
     if ( err ) {
       mimosaConfig.log.error( "ember-module-import: Error writing manifest file", err );
     } else {
-      mimosaConfig.log.info( "ember-module-import: Application manifest file [[ " + manifest.manifestFile + " ]] successfullly written." );
+      mimosaConfig.log.info( "ember-module-import wrote application manifest file [[ " + manifest.manifestFile + " ]]." );
       // if writing empty manifest, let the user know
       if ( !output.length ) {
         mimosaConfig.log.info("ember-module-import: [[ " + manifest.manifestFile + " ]] is an empty file." );
@@ -192,13 +192,13 @@ var _startup = function( mimosaConfig, options, next ) {
 var _clean = function( mimosaConfig, options, next ) {
   if ( fs.existsSync( mimosaConfig.emberModuleImport.cacheFile ) ) {
     fs.unlinkSync( mimosaConfig.emberModuleImport.cacheFile );
-    mimosaConfig.log.success( "mimosa-ember-module-import removed its cache file [[ " + mimosaConfig.emberModuleImport.cacheFile + "]]" );
+    mimosaConfig.log.success( "mimosa-ember-module-import removed its cache file [[ " + mimosaConfig.emberModuleImport.cacheFile + " ]]" );
   }
 
   mimosaConfig.emberModuleImport.apps.forEach( function( app ) {
     if ( fs.existsSync( app.manifestFile ) ) {
       fs.unlinkSync( app.manifestFile );
-      mimosaConfig.log.success( "mimosa-ember-module-import removed manifest file [[ " + app.manifestFile + "]]" );
+      mimosaConfig.log.success( "mimosa-ember-module-import removed manifest file [[ " + app.manifestFile + " ]]" );
     }
   });
 

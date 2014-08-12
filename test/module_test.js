@@ -8,7 +8,7 @@ var fs = require( 'fs' )
 
 utils.setupModuleData( env, null, "blogger"  );
 
-describe('When starting from scratch with no cache', function() {
+describe('When building from scratch with no cache', function() {
   this.timeout(15000);
 
   before(function(done){
@@ -43,4 +43,23 @@ describe('When starting from scratch with no cache', function() {
     expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
   });
 
+  describe( 'and then cleaning', function() {
+
+    before(function(done){
+      var cwd = process.cwd();
+      process.chdir( env.projectDir );
+      exec( "mimosa clean", function ( err, sout, serr ) {
+        done();
+        process.chdir(cwd);
+      });
+    });
+
+    it( 'the manifest file will be gone', function() {
+      expect( fs.existsSync( env.manifest ) ).to.be.false;
+    });
+
+    it( 'the cache file will be gone', function() {
+      expect( fs.existsSync( env.cacheFile ) ).to.be.false;
+    });
+  });
 });
