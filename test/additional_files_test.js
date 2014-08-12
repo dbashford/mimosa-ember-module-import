@@ -2,7 +2,6 @@ var fs = require( 'fs' )
   , path = require( 'path' )
   , exec = require('child_process').exec
   , utils = require( './util' )
-  , projectName = "alternate-cache"
   , env = utils.setupProjectData( "additional-files")
   ;
 

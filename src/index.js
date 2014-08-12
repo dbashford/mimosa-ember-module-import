@@ -83,7 +83,6 @@ var _processBuild = function( mimosaConfig, options, next ) {
             break;
           }
         }
-
       });
     });
   }
