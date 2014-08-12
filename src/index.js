@@ -192,7 +192,7 @@ var _startup = function( mimosaConfig, options, next ) {
 var _clean = function( mimosaConfig, options, next ) {
   if ( fs.existsSync( mimosaConfig.emberModuleImport.cacheFile ) ) {
     fs.unlinkSync( mimosaConfig.emberModuleImport.cacheFile );
-    mimosaConfig.log.success( "mimosa-ember-module-import removed its cache file [[ " + mimosaConfig.emberModuleImport.cacheFile + " ]]" );
+    mimosaConfig.log.info( "mimosa-ember-module-import removed its cache file [[ " + mimosaConfig.emberModuleImport.cacheFile + " ]]" );
   }
 
   mimosaConfig.emberModuleImport.apps.forEach( function( app ) {

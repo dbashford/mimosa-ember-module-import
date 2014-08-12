@@ -7,11 +7,13 @@ exports.setupProjectData = function( projectName ) {
   var projectDirectory = path.join( __dirname, "..", projectName );
   var mimosaConfig = path.join( projectDirectory, "mimosa-config.js" );
   var publicDirectory = path.join( projectDirectory, "public" );
+  var javascriptDirectory = path.join( projectDirectory, "javascripts" );
 
   return {
     projectName: projectName,
     projectDir: projectDirectory,
     publicDir: publicDirectory,
+    javascriptDir: javascriptDirectory,
     mimosaConfig: mimosaConfig
   };
 };
@@ -26,6 +28,7 @@ exports.setupModuleData = function( env, alternateCache, namespace ) {
     manifestFile = path.join( env.projectDir, "public", "javascripts", "app-modules.js");
   }
 
+  env.namespaceDir = path.dirname( manifestFile ).replace("public", "assets");
   env.cacheFile = cacheFile;
   env.namespace = namespace;
   env.manifest = manifestFile;

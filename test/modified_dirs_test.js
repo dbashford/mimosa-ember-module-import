@@ -37,6 +37,9 @@ describe('When starting from scratch with no cache', function() {
   });
 
   it( 'it will build the proper cache file', function() {
+    if (require.cache[env.cacheFile]) {
+      delete require.cache[env.cacheFile];
+    }
     var cacheFileJSON = require( env.cacheFile );
     expect(Object.keys(cacheFileJSON).length).to.equal(1);
     expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(3);
