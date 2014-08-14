@@ -52,7 +52,6 @@ describe('When building from scratch with no cache', function() {
       var cwd = process.cwd();
       process.chdir( env.projectDir );
       var child = exec( "mimosa watch", function ( err, sout, serr ) {
-        console.log(err, sout, serr)
         // won't get here
       });
       setTimeout(function(){

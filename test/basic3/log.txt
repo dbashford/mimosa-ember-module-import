@@ -1,0 +1,19 @@
+23:29:46 - Info - mimosa-require has bad tracking information and will need to rebuild its tracking information by forcing a recompile of all JavaScript. Nothing to worry about, this can be caused by moving, changing or deleting files while Mimosa isn't watching.
+23:29:46 - Info - Watching [36massets[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger-main.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/common.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/app.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/router.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/controllers/post_controller.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/data/posts.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/routes/post_route.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/helpers/helpers.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/handlebars/handlebars.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/jquery/jquery.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/blogger/routes/posts_route.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/lodash/lodash.compat.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/moment/moment.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/ember/ember.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/requirejs/require.js[0m
+23:29:47 - [32mSuccess[0m - Wrote file [36mpublic/javascripts/vendor/showdown/showdown.js[0m
+23:29:47 - Info - ember-module-import wrote application manifest file [36mpublic/javascripts/blogger/modules.js[0m.

@@ -130,6 +130,7 @@ exports.validate = function ( mimosaConfig, validators ) {
     // build will recompile everything so no need for cache
     if ( mimosaConfig.isWatch ) {
       cache.readCache( mimosaConfig );
+      cache.validateCache( mimosaConfig );
     }
   }
 

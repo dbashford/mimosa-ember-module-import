@@ -7,7 +7,7 @@ exports.setupProjectData = function( projectName ) {
   var projectDirectory = path.join( __dirname, "..", projectName );
   var mimosaConfig = path.join( projectDirectory, "mimosa-config.js" );
   var publicDirectory = path.join( projectDirectory, "public" );
-  var javascriptDirectory = path.join( projectDirectory, "javascripts" );
+  var javascriptDirectory = path.join( publicDirectory, "javascripts" );
 
   return {
     projectName: projectName,
