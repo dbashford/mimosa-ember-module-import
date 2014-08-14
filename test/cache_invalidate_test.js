@@ -23,7 +23,7 @@ describe('When building from scratch with no cache', function() {
   });
 
   after(function() {
-    // utils.cleanProject( env );
+    utils.cleanProject( env );
   });
 
   it('there should be a large number of writes', function() {
