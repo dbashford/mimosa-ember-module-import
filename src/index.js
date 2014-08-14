@@ -77,9 +77,22 @@ var _processBuild = function( mimosaConfig, options, next ) {
         var len = manifest.emberDirs.length;
         for ( var i = 0; i < len; i++ ) {
           if ( file.inputFileName.indexOf( manifest.emberDirs[i] ) === 0 ) {
+            
+            // file matches, make sure it hasn't been excluded
+            if ( manifest.exclude && manifest.exclude.indexOf( file.inputFileName ) !== -1 ) {
+              if ( mimosaConfig.log.isDebug() ) {
+                mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via string path." );
+              }
+            } else if ( manifest.excludeRegex && file.inputFileName.match( manifest.excludeRegex ) ) {
+              if ( mimosaConfig.log.isDebug() ) {
+                mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via regex." );
+              }
+            } else {
 
-            // TODO: deal with exclude for manifest
-            manifest.files.push( file.inputFileName );
+              // not excluded, add it to manifest
+              manifest.files.push( file.inputFileName );
+            }
+
             break;
           }
         }
@@ -177,6 +190,7 @@ var _startup = function( mimosaConfig, options, next ) {
     return {
       namespace: app.namespace,
       exclude: app.exclude,
+      excludeRegex: app.excludeRegex,
       forceWrite: forceWrite,
       manifestFile: app.manifestFile,
       emberDirs: app.emberDirs,
