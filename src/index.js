@@ -42,21 +42,107 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
       }
     }
 
-    done( true );
+    done();
   });
 };
 
-var _processFileAddRemove = function( mimosaConfig, options, next ) {
-  if ( options.files && options.files.length) {
+var __processManifests = function( mimosaConfig, options, matchCallback, noMatchCallback ) {
 
+  // iterate over each file, usually just 1
+  options.files.forEach( function( file ) {
+
+    // iterate over each app config
+    appManifestConfig.forEach( function( manifest ) {
+
+      // iterate over each emberDir/path to check
+      // if file is one to include in a manifest
+      var len = manifest.emberDirs.length;
+      for ( var i = 0; i < len; i++ ) {
+        if ( file.inputFileName.indexOf( manifest.emberDirs[i] ) === 0 ) {
+
+          // file matches, make sure it hasn't been excluded
+          if ( manifest.exclude && manifest.exclude.indexOf( file.inputFileName ) !== -1 ) {
+            if ( mimosaConfig.log.isDebug() ) {
+              mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via string path." );
+            }
+          } else if ( manifest.excludeRegex && file.inputFileName.match( manifest.excludeRegex ) ) {
+            if ( mimosaConfig.log.isDebug() ) {
+              mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via regex." );
+            }
+          } else {
+
+            // not excluded, have a file match, call callback with file and manifest
+            noMatchCallback = undefined;
+            matchCallback( manifest, file.inputFileName );
+            break;
+          }
+        }
+      }
+
+      if ( noMatchCallback ) {
+        noMatchCallback( manifest, file.inputFileName );
+      }
+    });
+  });
+};
+
+var _processFileRemove = function( mimosaConfig, options, next ) {
+  // no manifest or no files, leave
+  if ( !appManifestConfig.length || !options.files || !options.files.length ) {
+    return next();
   }
+
+  // set up wrap up callback
+  var numChecks = appManifestConfig.length * options.files.length
+    , completed = 0
+    , updateCache = false;
+  var done = function() {
+    if ( ++completed === numChecks ) {
+      if ( updateCache ) {
+        cache.writeCache( mimosaConfig, appManifestConfig, next );
+      } else {
+        next();
+      }
+    }
+  };
+
+  // setup callback for when match is found
+  var matchCallback = function( manifest, inputFileName ) {
+
+    // location of the deleted file in the manifests file list
+    var fileLocation = manifest.files.indexOf( inputFileName );
+
+    // if there is a match, need to write cache (later)
+    // and need to write the manifest (now)
+    if ( fileLocation > -1 ) {
+
+      // there has been one match, so need to write cache
+      updateCache = true;
+
+      // update files and write manifest
+      manifest.files.splice(fileLocation, 1);
+      __writeManifest( mimosaConfig, manifest, done );
+    } else {
+      done();
+    }
+  };
+
+  // process file through manifests
+  __processManifests( mimosaConfig, options, matchCallback, done );
+};
+
+
+var _processFileAdd = function( mimosaConfig, options, next ) {
   next();
 };
 
+// placeholder for later
+//
+// any file that is simply updated does not effect a manifest file.
+// If the file wasn't in a manifest file and its updated, it still
+// doesn't belong, and if a file is in the manifest file and it is
+// updated then its already where it needs to be.
 var _processFileUpdate = function( mimosaConfig, options, next ) {
-  if ( options.files && options.files.length) {
-
-  }
   next();
 };
 
@@ -64,40 +150,11 @@ var _processFileUpdate = function( mimosaConfig, options, next ) {
 // determine if it is a file to include in a manifest
 // and if it is, add it to that manifest's files
 var _processBuild = function( mimosaConfig, options, next ) {
-  if ( options.files && options.files.length) {
-
-    // iterate over each file, usually just 1
-    options.files.forEach( function( file ) {
-
-      // iterate over each app config
-      appManifestConfig.forEach( function( manifest ) {
-
-        // iterate over each emberDir/path to check
-        // if file is one to include in a manifest
-        var len = manifest.emberDirs.length;
-        for ( var i = 0; i < len; i++ ) {
-          if ( file.inputFileName.indexOf( manifest.emberDirs[i] ) === 0 ) {
-            
-            // file matches, make sure it hasn't been excluded
-            if ( manifest.exclude && manifest.exclude.indexOf( file.inputFileName ) !== -1 ) {
-              if ( mimosaConfig.log.isDebug() ) {
-                mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via string path." );
-              }
-            } else if ( manifest.excludeRegex && file.inputFileName.match( manifest.excludeRegex ) ) {
-              if ( mimosaConfig.log.isDebug() ) {
-                mimosaConfig.log.debug( "Not adding file to manifest [[ " + file.inputFileName + " ]] because it has been excluded via regex." );
-              }
-            } else {
-
-              // not excluded, add it to manifest
-              manifest.files.push( file.inputFileName );
-            }
-
-            break;
-          }
-        }
-      });
-    });
+  if ( options.files && options.files.length ) {
+    var matchCallback = function( manifest, inputFileName ) {
+      manifest.files.push( inputFileName );
+    };
+    __processManifests( mimosaConfig, options, matchCallback );
   }
   next();
 };
@@ -114,11 +171,10 @@ var _buildDone = function( mimosaConfig, options, next ) {
 
   // setup cache update, callers of "done" will
   // provide flag to inform if cache update is needed
-  var completed = 0, appManifestConfigLength = appManifestConfig.length, updateCache = false;
-  var done = function( needsCacheUpdate ) {
-    if ( needsCacheUpdate ) {
-      updateCache = true;
-    }
+  var completed = 0
+    , appManifestConfigLength = appManifestConfig.length
+    , updateCache = false;
+  var done = function() {
     if ( ++completed === appManifestConfigLength ) {
 
       // Cache will be updated if any manifest file
@@ -156,9 +212,10 @@ var _buildDone = function( mimosaConfig, options, next ) {
     // write manifest file
     if ( manifest.forceWrite || write ) {
       manifest.forceWrite = false;
+      updateCache = true;
       __writeManifest( mimosaConfig, manifest, done );
     } else {
-      done( false );
+      done();
     }
   });
 };
@@ -248,12 +305,11 @@ var registration = function (mimosaConfig, register) {
 
   // When file is added and it belongs in manifest
   // then cache and manifest file must be written
+  register( [ "add" ], "beforeWrite", _processFileAdd, exts );
+
   // When file is removed and it belongs to manifest file,
   // then cache and manifest files must be written
-  // TODO: try add and remove at same time, see if
-  // works together
-  //register( [ "remove"], "beforeWrite", _processFileDelete, exts );
-  register( [ "add", "remove" ], "beforeWrite", _processFileAddRemove, exts );
+  register( [ "remove"], "beforeWrite", _processFileRemove, exts );
 
   // When file is updated and its in a manifest
   // for now need to do nothing

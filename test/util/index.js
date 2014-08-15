@@ -1,6 +1,7 @@
 var fs = require( 'fs' )
   , path = require( 'path' )
   , wrench = require( 'wrench' )
+  , rimraf = require( 'rimraf' )
   ;
 
 exports.setupProjectData = function( projectName ) {
@@ -48,6 +49,6 @@ exports.setupProject = function( env, inProjectName ) {
 exports.cleanProject = function( env ) {
   // clean out cache
   if ( fs.existsSync( env.projectDir ) ) {
-    wrench.rmdirSyncRecursive( env.projectDir );
+    rimraf.sync( env.projectDir );
   }
 };
