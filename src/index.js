@@ -42,7 +42,7 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
       }
     }
 
-    done();
+    done( true );
   });
 };
 
@@ -86,8 +86,49 @@ var __processManifests = function( mimosaConfig, options, matchCallback, noMatch
   });
 };
 
-var _processFileRemove = function( mimosaConfig, options, next ) {
-  // no manifest or no files, leave
+// setup remove callback for when match is found
+var __removeMatchCallback = function( mimosaConfig, done) {
+  return function( manifest, inputFileName ) {
+
+    // location of the deleted file in the manifests file list
+    var fileLocation = manifest.files.indexOf( inputFileName );
+
+    // if there is a match, need to write cache (later)
+    // and need to write the manifest (now)
+    if ( fileLocation > -1 ) {
+      // update files and write manifest
+      manifest.files.splice(fileLocation, 1);
+      __writeManifest( mimosaConfig, manifest, done );
+    } else {
+      done( false );
+    }
+  };
+};
+
+// setup callback for when match is found
+var __addMatchCallback = function( mimosaConfig, done) {
+  return function( manifest, inputFileName ) {
+
+    // location of the added file in the manifests file list
+    var fileLocation = manifest.files.indexOf( inputFileName );
+
+    // if there is no match in existing files list, need to add write cache (later)
+    // and need to write the manifest (now)
+    if ( fileLocation === -1 ) {
+      // update files and write manifest
+      manifest.files.push( inputFileName );
+      manifest.files.sort();
+      __writeManifest( mimosaConfig, manifest, done );
+    } else {
+      done( false );
+    }
+  };
+};
+
+// Generic file processing.
+// Handles all cache writing.
+// Takes appropriate file/manifest match callback for add/update/delete scenarios
+var __fileProcess = function( mimosaConfig, options, next, matchCallback ) {
   if ( !appManifestConfig.length || !options.files || !options.files.length ) {
     return next();
   }
@@ -96,7 +137,10 @@ var _processFileRemove = function( mimosaConfig, options, next ) {
   var numChecks = appManifestConfig.length * options.files.length
     , completed = 0
     , updateCache = false;
-  var done = function() {
+  var done = function( shouldUpdateCache ) {
+    if ( shouldUpdateCache ) {
+      updateCache = true;
+    }
     if ( ++completed === numChecks ) {
       if ( updateCache ) {
         cache.writeCache( mimosaConfig, appManifestConfig, next );
@@ -106,34 +150,18 @@ var _processFileRemove = function( mimosaConfig, options, next ) {
     }
   };
 
-  // setup callback for when match is found
-  var matchCallback = function( manifest, inputFileName ) {
-
-    // location of the deleted file in the manifests file list
-    var fileLocation = manifest.files.indexOf( inputFileName );
-
-    // if there is a match, need to write cache (later)
-    // and need to write the manifest (now)
-    if ( fileLocation > -1 ) {
-
-      // there has been one match, so need to write cache
-      updateCache = true;
-
-      // update files and write manifest
-      manifest.files.splice(fileLocation, 1);
-      __writeManifest( mimosaConfig, manifest, done );
-    } else {
-      done();
-    }
-  };
-
   // process file through manifests
-  __processManifests( mimosaConfig, options, matchCallback, done );
+  __processManifests( mimosaConfig, options, matchCallback(mimosaConfig, done), function(){
+    done();
+  });
 };
 
+var _processFileRemove = function( mimosaConfig, options, next ) {
+  __fileProcess( mimosaConfig, options, next, __removeMatchCallback );
+};
 
 var _processFileAdd = function( mimosaConfig, options, next ) {
-  next();
+  __fileProcess( mimosaConfig, options, next, __addMatchCallback );
 };
 
 // placeholder for later

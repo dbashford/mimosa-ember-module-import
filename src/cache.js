@@ -22,7 +22,7 @@ exports.readCache = function( mimosaConfig ) {
 exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
   var cacheObject = {};
   manifestConfigs.forEach( function( conf ) {
-    cacheObject[conf.manifestFile] = conf.files;
+    cacheObject[conf.manifestFile] = conf.files.sort();
   });
 
   var cacheString = JSON.stringify( cacheObject, null, 2 );
