@@ -170,6 +170,12 @@ var _processFileAdd = function( mimosaConfig, options, next ) {
 // If the file wasn't in a manifest file and its updated, it still
 // doesn't belong, and if a file is in the manifest file and it is
 // updated then its already where it needs to be.
+//
+// TODO: down the road, when allowing App. registering
+// need to check updated file to see if file
+// contains references to multiple Ember assets.
+// Example: export { PostController, PostsController };
+
 var _processFileUpdate = function( mimosaConfig, options, next ) {
   next();
 };
@@ -304,11 +310,6 @@ var _clean = function( mimosaConfig, options, next ) {
 };
 
 var registration = function (mimosaConfig, register) {
-  // 2.possibly use info from mimosa-require re:paths?
-  //
-  // 3. while mimosa is watching need to check file paths vs
-  // cached list of things in manifest
-
   var exts = mimosaConfig.extensions.javascript;
 
   // during clean need to wipe out modules
@@ -339,12 +340,8 @@ var registration = function (mimosaConfig, register) {
   // then cache and manifest files must be written
   register( [ "remove"], "beforeWrite", _processFileRemove, exts );
 
-  // When file is updated and its in a manifest
-  // for now need to do nothing
-  // TODO: down the road, when allowing App. registering
-  // need to check updated file to see if file
-  // contains references to multiple Ember assets.
-  // Example: export { PostController, PostsController };
+  // When file is updated and its in a manifest need to check contents
+  // of file to see if exports have changed
   register( [ "update" ], "beforeWrite", _processFileUpdate, exts );
 };
 
