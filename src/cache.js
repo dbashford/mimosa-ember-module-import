@@ -48,6 +48,7 @@ exports.validateCache = function( mimosaConfig ) {
       if ( !fs.existsSync( paths[i] ) ) {
         mimosaConfig.__forceJavaScriptRecompile = true;
         mimosaConfig.log.info( "ember-module-import cannot find file [[ " + paths[i] + " ]] which is referenced in its cache, so it is forcing a recompile of assets to regenerate proper ember module imports." );
+        mimosaConfig.emberModuleImport.cacheData = undefined;
         return;
       }
     }
