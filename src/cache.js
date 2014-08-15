@@ -38,16 +38,18 @@ exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
 exports.validateCache = function( mimosaConfig ) {
   var paths = [];
   var cd = mimosaConfig.emberModuleImport.cacheData;
-  Object.keys( cd ).forEach( function( key ) {
-    paths.push( key );
-    paths = paths.concat( cd[key] );
-  });
+  if ( cd ) {
+    Object.keys( cd ).forEach( function( key ) {
+      paths.push( key );
+      paths = paths.concat( cd[key] );
+    });
 
-  for ( var i = 0; i < paths.length; i++ ) {
-    if ( !fs.existsSync( paths[i] ) ) {
-      mimosaConfig.__forceJavaScriptRecompile = true;
-      mimosaConfig.log.info( "ember-module-import cannot find file [[ " + paths[i] + " ]] which is referenced in its cache, so it is forcing a recompile of assets to regenerate proper ember module imports." );
-      return;
+    for ( var i = 0; i < paths.length; i++ ) {
+      if ( !fs.existsSync( paths[i] ) ) {
+        mimosaConfig.__forceJavaScriptRecompile = true;
+        mimosaConfig.log.info( "ember-module-import cannot find file [[ " + paths[i] + " ]] which is referenced in its cache, so it is forcing a recompile of assets to regenerate proper ember module imports." );
+        return;
+      }
     }
   }
 };
