@@ -7,6 +7,7 @@ exports.defaults = function() {
   return {
     emberModuleImport: {
       cacheDir: ".mimosa/emberModuleImport",
+      amd: true,
       apps: [{
         namespace: null,
         additional: [],
@@ -35,6 +36,8 @@ exports.placeholder = function() {
   var ph = "  emberModuleImport:                         # settings for ember-resolver module\n" +
            "    cacheDir:\".mimosa/emberModuleImport\"     # location to place cache. To not cache, set\n" +
            "                                         # this to null. Path is relative to project root.\n" +
+           "    amd: true                            # Whether or not the output is AMD or commonjs.\n" +
+           "                                         # set to false for commonjs\n" +
            "    apps: [{                             # list of apps to create manifests for, one entry\n" +
            "                                         # in the array for each app in your mimosa project\n" +
            "      namespace: null,                   # the namespace of the app to create a manifest\n" +
@@ -73,6 +76,7 @@ exports.validate = function ( mimosaConfig, validators ) {
     , er = mimosaConfig.emberModuleImport;
 
   if ( validators.ifExistsIsObject( errors, "emberModuleImport config", er ) ) {
+    validators.ifExistsIsBoolean(errors, "emberModuleImport.amd", er.amd );
     if ( validators.ifExistsIsString(errors, "emberModuleImport.cacheDir", er.cacheDir ) ) {
       if ( er.cacheDir ) {
         // build full paths to directory and file
