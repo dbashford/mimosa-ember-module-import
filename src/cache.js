@@ -13,9 +13,54 @@ var makeDirectory = function( folder ) {
 
 // write config cache
 exports.writeCacheConfig = function( mimosaConfig ) {
+
+  // transform paths to relative
+  var cacheConfig = _.cloneDeep(mimosaConfig.emberModuleImport.apps);
+  var cDir = mimosaConfig.watch.compiledDir;
+  var sDir = mimosaConfig.watch.sourceDir;
+  cacheConfig = cacheConfig.map( function( acc ) {
+    acc.namespace = acc.namespace.replace( sDir, "" );
+    acc.manifestFile = acc.manifestFile.replace( cDir, "" );
+    ["additional", "exclude", "emberDirs"].forEach( function( key ) {
+      if ( acc[key] ) {
+        acc[key] = acc[key].map( function( accKey ) {
+          return accKey.replace( sDir, "" );
+        });
+      }
+    });
+    return acc;
+  });
+
   makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
-  var emi = mimosaConfig.emberModuleImport;
-  fs.writeFileSync( emi.cacheConfig, JSON.stringify( emi.apps, null, 2) );
+  fs.writeFileSync(
+    mimosaConfig.emberModuleImport.cacheConfig,
+    JSON.stringify( cacheConfig, null, 2) );
+};
+
+var _readCacheConfig = function( mimosaConfig ) {
+  var cacheConfig;
+  try {
+    cacheConfig = require( mimosaConfig.emberModuleImport.cacheConfig );
+  } catch ( err ) {
+    throw err;
+  }
+
+  var cDir = mimosaConfig.watch.compiledDir;
+  var sDir = mimosaConfig.watch.sourceDir;
+  cacheConfig = cacheConfig.map( function( acc ) {
+    acc.namespace = path.join( sDir, acc.namespace );
+    acc.manifestFile = path.join( cDir, acc.manifestFile );
+    ["additional", "exclude", "emberDirs"].forEach( function( key ) {
+      if ( acc[key] ) {
+        acc[key] = acc[key].map( function( accKey ) {
+          return path.join( sDir, accKey );
+        });
+      }
+    });
+    return acc;
+  });
+
+  return cacheConfig;
 };
 
 exports.readCache = function( mimosaConfig ) {
@@ -81,7 +126,7 @@ exports.validateCache = function( mimosaConfig ) {
     // has the config for emberModuleImport changed
     // if so then need to force recompile to regenerate configs
     try {
-      var cachedConfig = require( emi.cacheConfig );
+      var cachedConfig = _readCacheConfig( mimosaConfig );
       var st = JSON.stringify;
       if ( !( _.isEqual( st(cachedConfig, null, 2), st(emi.apps, null, 2) ) ) ) {
         __forceRecompile( mimosaConfig,
