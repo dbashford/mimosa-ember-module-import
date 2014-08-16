@@ -124,7 +124,11 @@ exports.validate = function ( mimosaConfig, validators ) {
     er.apps.forEach( function( app ) {
       app.emberDirs = er.emberDirs.map( function( emberDir ) {
         return path.join( app.namespace, emberDir );
-      }).concat( app.additional );
+      });
+
+      if ( app.additional ) {
+        app.emberDirs = app.emberDirs.concat( app.additional );
+      }
     });
 
     // is watch, need to deal with cache
