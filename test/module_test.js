@@ -32,7 +32,7 @@ describe('When building from scratch with no cache', function() {
 
   it( 'it will build the proper manifest file', function() {
     var text = fs.readFileSync( env.manifest, "utf8" );
-    expect(text).to.equal("require('./controllers/post_controller.js');\nrequire('./helpers/helpers.js');\nrequire('./routes/post_route.js');\nrequire('./routes/posts_route.js');\n");
+    expect(text).to.equal("require('./controllers/post_controller');\nrequire('./helpers/helpers');\nrequire('./routes/post_route');\nrequire('./routes/posts_route');\n");
   });
 
   it( 'it will build the proper cache file', function() {

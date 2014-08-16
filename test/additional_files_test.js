@@ -33,10 +33,10 @@ describe('When starting from scratch with no cache', function() {
   it( 'it will build the proper manifest file', function() {
     var text = fs.readFileSync( env.manifest, "utf8" );
     expect(text).to.equal(
-      "require('./controllers/post_controller.js');\n" +
-      "require('./helpers/helpers.js');\nrequire('./routes/post_route.js');\n" +
-      "require('./routes/posts_route.js');\n" +
-      "require('../vendor/lodash/lodash.compat.js');\n");
+      "require('./controllers/post_controller');\n" +
+      "require('./helpers/helpers');\nrequire('./routes/post_route');\n" +
+      "require('./routes/posts_route');\n" +
+      "require('../vendor/lodash/lodash.compat');\n");
   });
 
   it( 'it will build the proper cache file', function() {
