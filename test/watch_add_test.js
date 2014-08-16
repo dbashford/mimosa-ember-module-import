@@ -40,7 +40,7 @@ describe('When building from scratch with no cache', function() {
     var cacheFileJSON = require( env.cacheFile );
     expect(Object.keys(cacheFileJSON).length).to.equal(1);
     expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(4);
-    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
+    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest.replace(env.publicDir, ''));
   });
 
   describe( 'and then watching with a cache and then adding a file', function() {
@@ -78,7 +78,7 @@ describe('When building from scratch with no cache', function() {
       var cacheFileJSON = require( env.cacheFile );
       expect(Object.keys(cacheFileJSON).length).to.equal(1);
       expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(5);
-      expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
+      expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest.replace(env.publicDir, ''));
     });
   });
 });

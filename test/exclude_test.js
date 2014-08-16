@@ -41,7 +41,7 @@ describe('When building from scratch with no cache with an exclude definition', 
     var cacheFileJSON = require( env.cacheFile );
     expect(Object.keys(cacheFileJSON).length).to.equal(1);
     expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(3);
-    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
+    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest.replace(env.publicDir, ''));
   });
 
 });

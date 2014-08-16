@@ -42,7 +42,7 @@ describe('When building from scratch with no cache', function() {
     var cacheFileJSON = require( env.cacheFile );
     expect(Object.keys(cacheFileJSON).length).to.equal(1);
     expect(cacheFileJSON[Object.keys(cacheFileJSON)[0]].length).to.equal(4);
-    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest);
+    expect(Object.keys(cacheFileJSON)[0]).to.equal(env.manifest.replace(env.publicDir, ''));
   });
 
   it( 'it will build the proper cache config file', function() {

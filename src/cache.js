@@ -1,6 +1,7 @@
 "use strict";
 
 var fs = require( "fs" )
+  , path = require( "path" )
   , wrench = require( "wrench" )
   , _ = require( "lodash" );
 
@@ -18,12 +19,25 @@ exports.writeCacheConfig = function( mimosaConfig ) {
 };
 
 exports.readCache = function( mimosaConfig ) {
+  var cacheData;
   try {
-    mimosaConfig.emberModuleImport.cacheData = require( mimosaConfig.emberModuleImport.cacheFile );
+    cacheData = require( mimosaConfig.emberModuleImport.cacheFile );
   } catch (err) {
     mimosaConfig.log.debug( "Problem requiring ember-module-import tracking file", err );
     mimosaConfig.log.debug( "mimosa-ember-module-import: javascript files need recompiling" );
     mimosaConfig.__forceJavaScriptRecompile = true;
+  }
+
+  if ( cacheData ) {
+    // paths back to full paths
+    var newCacheData = {};
+    Object.keys( cacheData ).forEach( function( key ) {
+      var newKey = path.join( mimosaConfig.watch.compiledDir, key );
+      newCacheData[newKey] = cacheData[key].map( function( p ) {
+        return path.join( mimosaConfig.watch.sourceDir, p);
+      });
+    });
+    mimosaConfig.emberModuleImport.cacheData = newCacheData;
   }
 };
 
@@ -33,7 +47,16 @@ exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
     cacheObject[conf.manifestFile] = conf.files.sort();
   });
 
-  var cacheString = JSON.stringify( cacheObject, null, 2 );
+  // convert to relative paths to manage diffs across project teams
+  var newCacheObject = {};
+  Object.keys( cacheObject ).forEach( function( key ) {
+    var newKey = key.replace( mimosaConfig.watch.compiledDir, "" );
+    newCacheObject[newKey] = cacheObject[key].map( function( p ) {
+      return p.replace( mimosaConfig.watch.sourceDir, "" );
+    });
+  });
+
+  var cacheString = JSON.stringify( newCacheObject, null, 2 );
   makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
   fs.writeFile( mimosaConfig.emberModuleImport.cacheFile, cacheString, function(err) {
     if ( err ) {
