@@ -39,7 +39,18 @@ exports.validateCache = function( mimosaConfig ) {
   var paths = [];
   var cd = mimosaConfig.emberModuleImport.cacheData;
   if ( cd ) {
-    Object.keys( cd ).forEach( function( key ) {
+    var manifestFiles = Object.keys( cd );
+    // are there not the same number of files in cache
+    // as there are in config?  Means config has been
+    // changed.  Need to recompile.
+    if ( manifestFiles.length !== mimosaConfig.emberModuleImport.apps.length ) {
+      mimosaConfig.__forceJavaScriptRecompile = true;
+      mimosaConfig.log.info( "ember-module-import cache has [[ " + manifestFiles.length + " apps ]] while config has [[ " + mimosaConfig.emberModuleImport.apps.length + " apps ]], so it is forcing a recompile of assets to regenerate proper ember module imports." );
+      mimosaConfig.emberModuleImport.cacheData = undefined;
+      return;
+    }
+
+    manifestFiles.forEach( function( key ) {
       paths.push( key );
       paths = paths.concat( cd[key] );
     });
