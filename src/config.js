@@ -78,6 +78,7 @@ exports.validate = function ( mimosaConfig, validators ) {
         // build full paths to directory and file
         er.cacheDir = path.join( mimosaConfig.root, er.cacheDir );
         er.cacheFile = path.join( er.cacheDir, "cache.json");
+        er.cacheConfig = path.join( er.cacheDir, "config.json");
       }
     }
 
@@ -132,6 +133,8 @@ exports.validate = function ( mimosaConfig, validators ) {
       cache.readCache( mimosaConfig );
       cache.validateCache( mimosaConfig );
     }
+
+    cache.writeCacheConfig( mimosaConfig );
   }
 
   return errors;

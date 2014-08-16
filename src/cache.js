@@ -1,12 +1,20 @@
 "use strict";
 
 var fs = require( "fs" )
-  , wrench = require( "wrench" );
+  , wrench = require( "wrench" )
+  , _ = require( "lodash" );
 
 var makeDirectory = function( folder ) {
   if ( !fs.existsSync( folder ) ) {
     return wrench.mkdirSyncRecursive( folder, 0x1ff );
   }
+};
+
+// write config cache
+exports.writeCacheConfig = function( mimosaConfig ) {
+  makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
+  var emi = mimosaConfig.emberModuleImport;
+  fs.writeFileSync( emi.cacheConfig, JSON.stringify( emi.apps, null, 2) );
 };
 
 exports.readCache = function( mimosaConfig ) {
@@ -35,33 +43,45 @@ exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
   });
 };
 
+var __forceRecompile = function( mimosaConfig, message ) {
+  mimosaConfig.__forceJavaScriptRecompile = true;
+  mimosaConfig.log.info( message );
+  mimosaConfig.emberModuleImport.cacheData = undefined;
+};
+
 exports.validateCache = function( mimosaConfig ) {
   var paths = [];
-  var cd = mimosaConfig.emberModuleImport.cacheData;
+  var emi = mimosaConfig.emberModuleImport;
+  var cd = emi.cacheData;
   if ( cd ) {
-    var manifestFiles = Object.keys( cd );
-    // are there not the same number of files in cache
-    // as there are in config?  Means config has been
-    // changed.  Need to recompile.
-    if ( manifestFiles.length !== mimosaConfig.emberModuleImport.apps.length ) {
-      mimosaConfig.__forceJavaScriptRecompile = true;
-      mimosaConfig.log.info( "ember-module-import cache has [[ " + manifestFiles.length + " apps ]] while config has [[ " + mimosaConfig.emberModuleImport.apps.length + " apps ]], so it is forcing a recompile of assets to regenerate proper ember module imports." );
-      mimosaConfig.emberModuleImport.cacheData = undefined;
-      return;
+
+    // has the config for emberModuleImport changed
+    // if so then need to force recompile to regenerate configs
+    try {
+      var cachedConfig = require( emi.cacheConfig );
+      var st = JSON.stringify;
+      if ( !( _.isEqual( st(cachedConfig, null, 2), st(emi.apps, null, 2) ) ) ) {
+        __forceRecompile( mimosaConfig,
+          "ember-module-import configuration has changed since mimosa was last run, so it is forcing a recompile of assets to regenerate proper ember module imports." );
+        return;
+      }
+
+    } catch (err) {
+      // file is just missing, that's fine
     }
 
-    manifestFiles.forEach( function( key ) {
+    Object.keys( cd ).forEach( function( key ) {
       paths.push( key );
       paths = paths.concat( cd[key] );
     });
 
     for ( var i = 0; i < paths.length; i++ ) {
       if ( !fs.existsSync( paths[i] ) ) {
-        mimosaConfig.__forceJavaScriptRecompile = true;
-        mimosaConfig.log.info( "ember-module-import cannot find file [[ " + paths[i] + " ]] which is referenced in its cache, so it is forcing a recompile of assets to regenerate proper ember module imports." );
-        mimosaConfig.emberModuleImport.cacheData = undefined;
+        __forceRecompile( mimosaConfig,
+          "ember-module-import cannot find file [[ " + paths[i] + " ]] which is referenced in its cache, so it is forcing a recompile of assets to regenerate proper ember module imports." );
         return;
       }
     }
+
   }
 };

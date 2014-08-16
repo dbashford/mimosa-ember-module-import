@@ -22,6 +22,8 @@ exports.setupProjectData = function( projectName ) {
 // setup specific for ember module import testing
 exports.setupModuleData = function( env, alternateCache, namespace ) {
   var cacheFile = path.join( env.projectDir, alternateCache || path.join(".mimosa", "emberModuleImport"), "cache.json" );
+  var cacheConfig = path.join( env.projectDir, alternateCache || path.join(".mimosa", "emberModuleImport"), "config.json" );
+
   var manifestFile;
   if ( namespace ) {
     manifestFile = path.join( env.projectDir, "public", "javascripts", namespace, "modules.js");
@@ -30,6 +32,7 @@ exports.setupModuleData = function( env, alternateCache, namespace ) {
   }
 
   env.namespaceDir = path.dirname( manifestFile ).replace("public", "assets");
+  env.cacheConfig = cacheConfig;
   env.cacheFile = cacheFile;
   env.namespace = namespace;
   env.manifest = manifestFile;
