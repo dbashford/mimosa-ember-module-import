@@ -116,6 +116,27 @@ And the output would resemble the following:
       search-modules.js
 ```
 
+## Example Manifest File
+
+### AMD
+
+```javascript
+define( function( require ) {
+  require('./controllers/post_controller');
+  require('./controllers/posts_controller');
+  require('./routes/post_route');
+  require('./routes/posts_route');
+});
+```
+
+### CommonJS
+
+```javascript
+require('./controllers/post_controller');
+require('./controllers/posts_controller');
+require('./routes/post_route');
+require('./routes/posts_route');
+```
 
 ## To run tests
 
