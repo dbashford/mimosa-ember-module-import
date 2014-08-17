@@ -3,8 +3,7 @@ exports.config = {
     amd:1,
     cacheDir: false,
     apps: false,
-    emberDirs: false,
-    appImport: 3
+    emberDirs: false
   },
   modules: [
     'ember-module-import'

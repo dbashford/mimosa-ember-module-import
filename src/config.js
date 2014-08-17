@@ -12,7 +12,8 @@ exports.defaults = function() {
         namespace: null,
         additional: [],
         exclude: [],
-        manifestFile: "app-modules"
+        manifestFile: "app-modules",
+        appImport: null
       }],
       emberDirs: [
         "adapters",
@@ -52,6 +53,10 @@ exports.placeholder = function() {
            "                                         # that can be relative to the namespace or absolute.\n" +
            "      manifestFile: \"app-modules\"        # The name of the manifest file to output.\n" +
            "                                         # '.js' is assumed. Path is relative to namespace\n" +
+           "      appImport: null                    # Use this if the you want the manifestFile to contain\n" +
+           "                                         # the bindings to your Ember app. Ex: App.PostsController. \n" +
+           "                                         # If this option isn't used you will need to manage attaching\n" +
+           "                                         # Ember objects to app yourself.\n" +
            "    }],                                  # \n" +
            "    emberDirs: [                         # Ember directories that contain files to\n" +
            "      \"adapters\",                        # include in a manifest file. Any files in\n" +
@@ -93,6 +98,8 @@ exports.validate = function ( mimosaConfig, validators ) {
         if ( !app.namespace ) {
           app.namespace = "";
         }
+
+        validators.ifExistsIsString( errors, "emberModuleImport.appImport", app.appImport );
 
         if ( validators.ifExistsIsString( errors, "emberModuleImport.apps.namespace", app.namespace ) ) {
           var w = mimosaConfig.watch;

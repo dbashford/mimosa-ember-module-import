@@ -31,7 +31,7 @@ describe('When starting up', function() {
       " * emberModuleImport.apps must be an array.\n" +
       " * emberModuleImport.emberDirs configuration must be an array. \n";
     standardErr = standardErr.split("\n").splice(1).join("\n");
-    
+
     expect( standardErr ).to.equal( expected );
   });
 });
@@ -97,6 +97,7 @@ describe('When starting up', function() {
   it( 'the config should pass validation 3', function() {
     var expected =
       " * emberModuleImport.cacheDir must be a string.\n" +
+      " * emberModuleImport.appImport must be a string.\n" +
       " * emberModuleImport.apps.manifestFile must be a string.\n" +
       " * emberModuleImport.apps.additional must be an array.\n" +
       " * emberModuleImport.apps.exclude must be an array\n" +

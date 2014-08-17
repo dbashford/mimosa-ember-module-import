@@ -5,7 +5,8 @@ exports.config = {
       namespace: false,
       additional: false,
       exclude: false,
-      manifestFile: false
+      manifestFile: false,
+      appImport: 3
     }],
     emberDirs: [{}]
   },
