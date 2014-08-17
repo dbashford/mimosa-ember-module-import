@@ -22,7 +22,7 @@ var __transformPath = function( namespace, inputFileName ) {
 
 // Output manifest file after creating
 // proper string output
-var __writeManifest = function( mimosaConfig, manifest, done ) {
+var __writeSimpleManifest = function( mimosaConfig, manifest, done ) {
   var output = ""
     , files = manifest.files
     , namespace = manifest.namespace;
@@ -105,7 +105,7 @@ var __removeMatchSimple = function( mimosaConfig, manifest, file, done ) {
   if ( fileLocation > -1 ) {
     // update files and write manifest
     manifest.files.splice(fileLocation, 1);
-    __writeManifest( mimosaConfig, manifest, done );
+    __writeSimpleManifest( mimosaConfig, manifest, done );
   } else {
     done( false );
   }
@@ -135,7 +135,7 @@ var __addMatchSimple = function( mimosaConfig, manifest, file, done ) {
     // update files and write manifest
     manifest.files.push( inputFileName );
     manifest.files.sort();
-    __writeManifest( mimosaConfig, manifest, done );
+    __writeSimpleManifest( mimosaConfig, manifest, done );
   } else {
     done( false );
   }
@@ -258,8 +258,13 @@ var _buildDone = function( mimosaConfig, options, next ) {
   appManifestConfig.forEach( function( manifest ) {
 
     // remove dupes and sort files
-    manifest.files = _.uniq( manifest.files );
-    manifest.files.sort();
+    if ( !manifest.appImport ) {
+      manifest.files = _.uniq( manifest.files );
+      manifest.files.sort();
+    } else {
+      // manage sorting appImport style files
+    }
+
 
     // forceWrite can be set to true if the output
     // file to be written is missing. In that case
@@ -281,7 +286,7 @@ var _buildDone = function( mimosaConfig, options, next ) {
     if ( manifest.forceWrite || write ) {
       manifest.forceWrite = false;
       updateCache = true;
-      __writeManifest( mimosaConfig, manifest, done );
+      __writeSimpleManifest( mimosaConfig, manifest, done );
     } else {
       done();
     }
