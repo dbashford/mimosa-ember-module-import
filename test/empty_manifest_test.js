@@ -36,6 +36,6 @@ describe('When there are no ember files', function() {
   });
 
   it( 'the manifest file should be empty', function() {
-    expect( fs.readFileSync( env.manifest, "utf8" ) ).to.equal("");
+    expect( fs.readFileSync( env.manifest, "utf8" ) ).to.equal("define( function( require ) {\n});\n");
   });
 });

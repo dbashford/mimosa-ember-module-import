@@ -29,8 +29,15 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
 
   files.forEach( function( file ) {
     var outPath = __transformPath( namespace, file );
+    if ( mimosaConfig.emberModuleImport.amd ) {
+      output += "  ";
+    }
     output += "require('" + outPath + "');\n";
   });
+
+  if ( mimosaConfig.emberModuleImport.amd ) {
+    output = "define( function( require ) {\n" + output + "});\n";
+  }
 
   fs.writeFile( manifest.manifestFile, output, function( err ) {
     if ( err ) {
@@ -38,7 +45,7 @@ var __writeManifest = function( mimosaConfig, manifest, done ) {
     } else {
       mimosaConfig.log.info( "ember-module-import wrote application manifest file [[ " + manifest.manifestFile + " ]]." );
       // if writing empty manifest, let the user know
-      if ( !output.length ) {
+      if ( !files.length ) {
         mimosaConfig.log.info("ember-module-import: [[ " + manifest.manifestFile + " ]] is an empty file." );
       }
     }

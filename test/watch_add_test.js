@@ -30,7 +30,13 @@ describe('When building from scratch with no cache', function() {
 
   it( 'it will build the proper manifest file', function() {
     var text = fs.readFileSync( env.manifest, "utf8" );
-    expect(text).to.equal("require('./controllers/post_controller');\nrequire('./helpers/helpers');\nrequire('./routes/post_route');\nrequire('./routes/posts_route');\n");
+    expect(text).to.equal(
+      "define( function( require ) {\n" +
+      "  require('./controllers/post_controller');\n" +
+      "  require('./helpers/helpers');\n" +
+      "  require('./routes/post_route');\n" +
+      "  require('./routes/posts_route');\n" +
+      "});\n");
   });
 
   it( 'it will build the proper cache file', function() {
@@ -69,10 +75,13 @@ describe('When building from scratch with no cache', function() {
     it( 'it will build the proper manifest file with the new file included', function() {
       var text = fs.readFileSync( env.manifest, "utf8" );
       expect(text).to.equal(
-        "require('./controllers/post_controller');\n" +
-        "require('./controllers/some_new_controller');\n" +
-        "require('./helpers/helpers');\nrequire('./routes/post_route');\n" +
-        "require('./routes/posts_route');\n");
+        "define( function( require ) {\n" +
+        "  require('./controllers/post_controller');\n" +
+        "  require('./controllers/some_new_controller');\n" +
+        "  require('./helpers/helpers');\n" +
+        "  require('./routes/post_route');\n" +
+        "  require('./routes/posts_route');\n" +
+        "});\n");
     });
 
     it( 'it will build the proper cache file with the new file included', function() {
