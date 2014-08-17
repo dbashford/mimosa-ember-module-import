@@ -5,14 +5,14 @@ var fs = require( 'fs' )
   , env = utils.setupProjectData( "commonjs" )
   ;
 
-utils.setupModuleData( env );
+utils.setupModuleData( env, null, "blogger"  );
 
 describe('When not provided a configuration', function() {
   this.timeout(15000);
 
   before(function(done){
     utils.cleanProject( env );
-    utils.setupProject( env, "defaults" )
+    utils.setupProject( env, "namespaced" )
 
     var cwd = process.cwd();
     process.chdir( env.projectDir );

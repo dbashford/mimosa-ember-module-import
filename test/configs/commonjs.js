@@ -5,7 +5,7 @@ exports.config = {
       namespace: "blogger",
       additional: [],
       exclude: [],
-      manifestFile: "modules"
+      manifestFile: "app-modules"
     }]
   },
   modules: [
