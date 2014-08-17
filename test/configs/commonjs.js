@@ -1,11 +1,11 @@
 exports.config = {
   emberModuleImport: {
-    amd: false;
+    amd: false,
     apps: [{
       namespace: "blogger",
       additional: [],
       exclude: [],
-      manifestFile: "app-modules"
+      manifestFile: "modules"
     }]
   },
   modules: [
