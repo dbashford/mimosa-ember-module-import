@@ -81,7 +81,7 @@ var __processManifests = function( mimosaConfig, options, matchCallback, noMatch
 
             // not excluded, have a file match, call callback with file and manifest
             noMatchCallback = undefined;
-            matchCallback( manifest, file.inputFileName );
+            matchCallback( manifest, file );
             break;
           }
         }
@@ -94,41 +94,61 @@ var __processManifests = function( mimosaConfig, options, matchCallback, noMatch
   });
 };
 
+var __removeMatchSimple = function( mimosaConfig, manifest, file, done ) {
+  var inputFileName = file.inputFileName;
+
+  // location of the deleted file in the manifests file list
+  var fileLocation = manifest.files.indexOf( inputFileName );
+
+  // if there is a match, need to write cache (later)
+  // and need to write the manifest (now)
+  if ( fileLocation > -1 ) {
+    // update files and write manifest
+    manifest.files.splice(fileLocation, 1);
+    __writeManifest( mimosaConfig, manifest, done );
+  } else {
+    done( false );
+  }
+};
+
 // setup remove callback for when match is found
 var __removeMatchCallback = function( mimosaConfig, done) {
-  return function( manifest, inputFileName ) {
-
-    // location of the deleted file in the manifests file list
-    var fileLocation = manifest.files.indexOf( inputFileName );
-
-    // if there is a match, need to write cache (later)
-    // and need to write the manifest (now)
-    if ( fileLocation > -1 ) {
-      // update files and write manifest
-      manifest.files.splice(fileLocation, 1);
-      __writeManifest( mimosaConfig, manifest, done );
+  return function( manifest, file ) {
+    if ( !manifest.appImport ) {
+      // just need to remove file string from array
+      __removeMatchSimple( mimosaConfig, manifest, file, done );
     } else {
-      done( false );
+      // need to remove file object from array
     }
   };
 };
 
+var __addMatchSimple = function( mimosaConfig, manifest, file, done ) {
+  var inputFileName = file.inputFileName;
+
+  // location of the added file in the manifests file list
+  var fileLocation = manifest.files.indexOf( inputFileName );
+
+  // if there is no match in existing files list, need to add write cache (later)
+  // and need to write the manifest (now)
+  if ( fileLocation === -1 ) {
+    // update files and write manifest
+    manifest.files.push( inputFileName );
+    manifest.files.sort();
+    __writeManifest( mimosaConfig, manifest, done );
+  } else {
+    done( false );
+  }
+};
+
 // setup callback for when match is found
 var __addMatchCallback = function( mimosaConfig, done) {
-  return function( manifest, inputFileName ) {
-
-    // location of the added file in the manifests file list
-    var fileLocation = manifest.files.indexOf( inputFileName );
-
-    // if there is no match in existing files list, need to add write cache (later)
-    // and need to write the manifest (now)
-    if ( fileLocation === -1 ) {
-      // update files and write manifest
-      manifest.files.push( inputFileName );
-      manifest.files.sort();
-      __writeManifest( mimosaConfig, manifest, done );
+  return function( manifest, file ) {
+    if ( !manifest.appImport ) {
+      // just generating requires
+      __addMatchSimple( mimosaConfig, manifest, file, done );
     } else {
-      done( false );
+      // need to generate App. manifest
     }
   };
 };
@@ -188,15 +208,21 @@ var _processFileUpdate = function( mimosaConfig, options, next ) {
   next();
 };
 
+
+var __buildMatchCallback = function( manifest, file ) {
+  if ( !manifest.appImport ) {
+    manifest.files.push( file.inputFileName );
+  } else {
+    // need to parse imports
+  }
+};
+
 // As each javascript file is built during the initial build
 // determine if it is a file to include in a manifest
 // and if it is, add it to that manifest's files
 var _processBuild = function( mimosaConfig, options, next ) {
   if ( options.files && options.files.length ) {
-    var matchCallback = function( manifest, inputFileName ) {
-      manifest.files.push( inputFileName );
-    };
-    __processManifests( mimosaConfig, options, matchCallback );
+    __processManifests( mimosaConfig, options, __buildMatchCallback );
   }
   next();
 };
