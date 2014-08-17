@@ -1,5 +1,6 @@
 exports.config = {
   emberModuleImport: {
+    amd:1,
     cacheDir: false,
     apps: false,
     emberDirs: false
