@@ -47,7 +47,7 @@ exports.placeholder = function() {
            "                                         # for. namespace = root folder. If namespace is null\n" +
            "                                         # the entire project is used. namespace is relative\n" +
            "                                         # to watch.javascriptDir.\n" +
-           "      additional: [],                    # Paths to additional/shared resources to include in the\n" +
+           "      additional: [\"router\"],            # Paths to additional/shared resources to include in the\n" +
            "                                         # manifest. Paths are relative to the namespace. Use '../'\n" +
            "                                         # paths to include files/folders outside the namespace\n" +
            "      exclude:[]                         # array of strings or regexes that match files\n" +
