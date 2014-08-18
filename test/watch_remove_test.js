@@ -30,13 +30,19 @@ describe('When building from scratch with no cache', function() {
 
   it( 'it will build the proper manifest file', function() {
     var text = fs.readFileSync( env.manifest, "utf8" );
-    expect(text).to.equal(
-      "define( function( require ) {\n" +
-      "  require('./controllers/post_controller');\n" +
-      "  require('./helpers/helpers');\n" +
-      "  require('./routes/post_route');\n" +
-      "  require('./routes/posts_route');\n" +
-      "});\n");
+    var expected = "define( function( require ) {\n" +
+      "  var _0 = require('./controllers/post_controller');\n" +
+      "  var _1 = require('./helpers/helpers');\n" +
+      "  var _2 = require('./routes/post_route');\n" +
+      "  var _3 = require('./routes/posts_route');\n\n" +
+      "  var modules = {\n" +
+      "    PostController: _0 && (_0['default'] || _0),\n" +
+      "    Helpers: _1 && (_1['default'] || _1),\n" +
+      "    PostRoute: _2 && (_2['default'] || _2),\n" +
+      "    PostsRoute: _3 && (_3['default'] || _3)\n" +
+      "  };\n" +
+      "  return modules;\n});"
+    expect(text).to.equal(expected);
   });
 
   it( 'it will build the proper cache file', function() {
@@ -74,15 +80,20 @@ describe('When building from scratch with no cache', function() {
 
     it( 'it will build the proper manifest file with the deleted file excluded', function() {
       var text = fs.readFileSync( env.manifest, "utf8" );
-      expect(text).to.equal(
-        "define( function( require ) {\n" +
-        "  require('./helpers/helpers');\n" +
-        "  require('./routes/post_route');\n" +
-        "  require('./routes/posts_route');\n" +
-        "});\n");
+      var expected = "define( function( require ) {\n" +
+        "  var _0 = require('./helpers/helpers');\n" +
+        "  var _1 = require('./routes/post_route');\n" +
+        "  var _2 = require('./routes/posts_route');\n\n" +
+        "  var modules = {\n" +
+        "    Helpers: _0 && (_0['default'] || _0),\n" +
+        "    PostRoute: _1 && (_1['default'] || _1),\n" +
+        "    PostsRoute: _2 && (_2['default'] || _2)\n" +
+        "  };\n" +
+        "  return modules;\n});"
+      expect(text).to.equal(expected);
     });
 
-    it( 'it will build the proper cache file with the new file included', function() {
+    it( 'it will build the proper cache file with the deleted file excluded', function() {
       if (require.cache[env.cacheFile]) {
         delete require.cache[env.cacheFile];
       }

@@ -1,0 +1,11 @@
+<% for ( var i = 0; i < files.length; i++ ) {
+%>var _<%= i %> = require('<%= files[i].path %>');
+<% } %>
+var modules = {
+<%
+  var len = files.length;
+  for ( var i = 0; i < len; i++ ) {
+%>  <%= files[i].varName %>: _<%= i %> && (_<%= i %>['default'] || _<%= i %>)<% if (i !== len-1) { %>,<% } %>
+<% } %>};
+
+module.exports = modules;

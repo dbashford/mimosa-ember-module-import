@@ -8,12 +8,12 @@ exports.defaults = function() {
     emberModuleImport: {
       cacheDir: ".mimosa/emberModuleImport",
       amd: true,
+      fileSep: "_",
       apps: [{
         namespace: null,
-        additional: [],
+        additional: ["router"],
         exclude: [],
-        manifestFile: "app-modules",
-        appImport: null
+        manifestFile: "app-modules"
       }],
       emberDirs: [
         "adapters",
@@ -39,6 +39,8 @@ exports.placeholder = function() {
            "                                         # this to null. Path is relative to project root.\n" +
            "    amd: true                            # Whether or not the output is AMD or commonjs.\n" +
            "                                         # set to false for commonjs\n" +
+           "    fileSep: \"_\"                         # Character/String used for separating portions of\n" +
+           "                                         # file name. Ex: tag_editor_controller.js\n" +
            "    apps: [{                             # list of apps to create manifests for, one entry\n" +
            "                                         # in the array for each app in your mimosa project\n" +
            "      namespace: null,                   # the namespace of the app to create a manifest\n" +
@@ -53,10 +55,6 @@ exports.placeholder = function() {
            "                                         # that can be relative to the namespace or absolute.\n" +
            "      manifestFile: \"app-modules\"        # The name of the manifest file to output.\n" +
            "                                         # '.js' is assumed. Path is relative to namespace\n" +
-           "      appImport: null                    # Use this if the you want the manifestFile to contain\n" +
-           "                                         # the bindings to your Ember app. Ex: App.PostsController. \n" +
-           "                                         # If this option isn't used you will need to manage attaching\n" +
-           "                                         # Ember objects to app yourself.\n" +
            "    }],                                  # \n" +
            "    emberDirs: [                         # Ember directories that contain files to\n" +
            "      \"adapters\",                        # include in a manifest file. Any files in\n" +
@@ -82,6 +80,7 @@ exports.validate = function ( mimosaConfig, validators ) {
 
   if ( validators.ifExistsIsObject( errors, "emberModuleImport config", er ) ) {
     validators.ifExistsIsBoolean(errors, "emberModuleImport.amd", er.amd );
+    validators.ifExistsIsString(errors, "emberModuleImport.fileSep", er.fileSep );
     if ( validators.ifExistsIsString(errors, "emberModuleImport.cacheDir", er.cacheDir ) ) {
       if ( er.cacheDir ) {
         // build full paths to directory and file
@@ -98,8 +97,6 @@ exports.validate = function ( mimosaConfig, validators ) {
         if ( !app.namespace ) {
           app.namespace = "";
         }
-
-        validators.ifExistsIsString( errors, "emberModuleImport.appImport", app.appImport );
 
         if ( validators.ifExistsIsString( errors, "emberModuleImport.apps.namespace", app.namespace ) ) {
           var w = mimosaConfig.watch;

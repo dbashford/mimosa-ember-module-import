@@ -97,7 +97,6 @@ describe('When starting up', function() {
   it( 'the config should pass validation 3', function() {
     var expected =
       " * emberModuleImport.cacheDir must be a string.\n" +
-      " * emberModuleImport.appImport must be a string.\n" +
       " * emberModuleImport.apps.manifestFile must be a string.\n" +
       " * emberModuleImport.apps.additional must be an array.\n" +
       " * emberModuleImport.apps.exclude must be an array\n" +

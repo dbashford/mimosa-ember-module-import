@@ -6,7 +6,19 @@ var path = require( "path" )
   , moduleConfig = require( "./config" )
   , cache = require( "./cache" )
   , starters = [".","\\","/"]
-  , appManifestConfig = [];
+  , appManifestConfig = []
+  , compiledTemplate;
+
+var setCompiledTemplate = function( amd ) {
+  var templatePath;
+  if ( amd ) {
+    templatePath = path.join( __dirname, "assets", "amd.template" );
+  } else {
+    templatePath = path.join( __dirname, "assets", "commonjs.template" );
+  }
+  var templateText = fs.readFileSync( templatePath );
+  compiledTemplate = _.template( templateText );
+};
 
 // need to transform paths to one that is relative to
 // the namespace
@@ -22,22 +34,30 @@ var __transformPath = function( namespace, inputFileName ) {
 
 // Output manifest file after creating
 // proper string output
-var __writeSimpleManifest = function( mimosaConfig, manifest, done ) {
-  var output = ""
-    , files = manifest.files
-    , namespace = manifest.namespace;
+var __writeManifest = function( mimosaConfig, manifest, done ) {
+  var files = manifest.files
+    , namespace = manifest.namespace
+    , emi = mimosaConfig.emberModuleImport;
 
-  files.forEach( function( file ) {
+  var preTemplateFiles = files.map( function( file ) {
     var outPath = __transformPath( namespace, file );
-    if ( mimosaConfig.emberModuleImport.amd ) {
-      output += "  ";
-    }
-    output += "require('" + outPath + "');\n";
+    var varName =
+      path.basename( file, ".js" )
+        .split( emi.fileSep )
+        .map( function( filePortion ) {
+          return filePortion.charAt(0).toUpperCase() + filePortion.slice(1);
+        }).join("");
+
+    return {
+      path: outPath,
+      varName: varName
+    };
   });
 
-  if ( mimosaConfig.emberModuleImport.amd ) {
-    output = "define( function( require ) {\n" + output + "});\n";
+  if( !compiledTemplate ) {
+    setCompiledTemplate( emi.amd );
   }
+  var output = compiledTemplate( { files: preTemplateFiles } );
 
   fs.writeFile( manifest.manifestFile, output, function( err ) {
     if ( err ) {
@@ -94,61 +114,43 @@ var __processManifests = function( mimosaConfig, options, matchCallback, noMatch
   });
 };
 
-var __removeMatchSimple = function( mimosaConfig, manifest, file, done ) {
-  var inputFileName = file.inputFileName;
-
-  // location of the deleted file in the manifests file list
-  var fileLocation = manifest.files.indexOf( inputFileName );
-
-  // if there is a match, need to write cache (later)
-  // and need to write the manifest (now)
-  if ( fileLocation > -1 ) {
-    // update files and write manifest
-    manifest.files.splice(fileLocation, 1);
-    __writeSimpleManifest( mimosaConfig, manifest, done );
-  } else {
-    done( false );
-  }
-};
-
 // setup remove callback for when match is found
 var __removeMatchCallback = function( mimosaConfig, done) {
   return function( manifest, file ) {
-    if ( !manifest.appImport ) {
-      // just need to remove file string from array
-      __removeMatchSimple( mimosaConfig, manifest, file, done );
+    var inputFileName = file.inputFileName;
+
+    // location of the deleted file in the manifests file list
+    var fileLocation = manifest.files.indexOf( inputFileName );
+
+    // if there is a match, need to write cache (later)
+    // and need to write the manifest (now)
+    if ( fileLocation > -1 ) {
+      // update files and write manifest
+      manifest.files.splice(fileLocation, 1);
+      __writeManifest( mimosaConfig, manifest, done );
     } else {
-      // need to remove file object from array
+      done( false );
     }
   };
-};
-
-var __addMatchSimple = function( mimosaConfig, manifest, file, done ) {
-  var inputFileName = file.inputFileName;
-
-  // location of the added file in the manifests file list
-  var fileLocation = manifest.files.indexOf( inputFileName );
-
-  // if there is no match in existing files list, need to add write cache (later)
-  // and need to write the manifest (now)
-  if ( fileLocation === -1 ) {
-    // update files and write manifest
-    manifest.files.push( inputFileName );
-    manifest.files.sort();
-    __writeSimpleManifest( mimosaConfig, manifest, done );
-  } else {
-    done( false );
-  }
 };
 
 // setup callback for when match is found
 var __addMatchCallback = function( mimosaConfig, done) {
   return function( manifest, file ) {
-    if ( !manifest.appImport ) {
-      // just generating requires
-      __addMatchSimple( mimosaConfig, manifest, file, done );
+    var inputFileName = file.inputFileName;
+
+    // location of the added file in the manifests file list
+    var fileLocation = manifest.files.indexOf( inputFileName );
+
+    // if there is no match in existing files list, need to add write cache (later)
+    // and need to write the manifest (now)
+    if ( fileLocation === -1 ) {
+      // update files and write manifest
+      manifest.files.push( inputFileName );
+      manifest.files.sort();
+      __writeManifest( mimosaConfig, manifest, done );
     } else {
-      // need to generate App. manifest
+      done( false );
     }
   };
 };
@@ -192,29 +194,8 @@ var _processFileAdd = function( mimosaConfig, options, next ) {
   __fileProcess( mimosaConfig, options, next, __addMatchCallback );
 };
 
-// placeholder for later
-//
-// any file that is simply updated does not effect a manifest file.
-// If the file wasn't in a manifest file and its updated, it still
-// doesn't belong, and if a file is in the manifest file and it is
-// updated then its already where it needs to be.
-//
-// TODO: down the road, when allowing App. registering
-// need to check updated file to see if file
-// contains references to multiple Ember assets.
-// Example: export { PostController, PostsController };
-
-var _processFileUpdate = function( mimosaConfig, options, next ) {
-  next();
-};
-
-
 var __buildMatchCallback = function( manifest, file ) {
-  if ( !manifest.appImport ) {
-    manifest.files.push( file.inputFileName );
-  } else {
-    // need to parse imports
-  }
+  manifest.files.push( file.inputFileName );
 };
 
 // As each javascript file is built during the initial build
@@ -257,14 +238,8 @@ var _buildDone = function( mimosaConfig, options, next ) {
 
   appManifestConfig.forEach( function( manifest ) {
 
-    // remove dupes and sort files
-    if ( !manifest.appImport ) {
-      manifest.files = _.uniq( manifest.files );
-      manifest.files.sort();
-    } else {
-      // manage sorting appImport style files
-    }
-
+    manifest.files = _.uniq( manifest.files );
+    manifest.files.sort();
 
     // forceWrite can be set to true if the output
     // file to be written is missing. In that case
@@ -286,7 +261,7 @@ var _buildDone = function( mimosaConfig, options, next ) {
     if ( manifest.forceWrite || write ) {
       manifest.forceWrite = false;
       updateCache = true;
-      __writeSimpleManifest( mimosaConfig, manifest, done );
+      __writeManifest( mimosaConfig, manifest, done );
     } else {
       done();
     }
@@ -378,10 +353,6 @@ var registration = function (mimosaConfig, register) {
   // When file is removed and it belongs to manifest file,
   // then cache and manifest files must be written
   register( [ "remove"], "beforeWrite", _processFileRemove, exts );
-
-  // When file is updated and its in a manifest need to check contents
-  // of file to see if exports have changed
-  register( [ "update" ], "beforeWrite", _processFileUpdate, exts );
 };
 
 module.exports = {

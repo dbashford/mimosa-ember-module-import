@@ -3,7 +3,8 @@ exports.config = {
   watch: {
     sourceDir: "src",
     compiledDir: "lib",
-    javascriptDir: null
+    javascriptDir: null,
+    exclude: [/.template$/]
   },
   eslint: {
     options: {
