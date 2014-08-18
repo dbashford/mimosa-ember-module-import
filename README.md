@@ -15,11 +15,13 @@ Add `'ember-module-import'` to your list of modules.  That's all!  Mimosa will i
 
 ## Functionality
 
-This module makes using module systems together with Ember easier. Ember doesn't work with async module loaders. Ideally, when Ember is fired up it wants to have all of the various Ember object types (Controllers, Views, Routers, etc) already attached/register.
+This module makes using module systems together with Ember easier. Ember doesn't work with async module loaders. Ideally, when Ember is fired up it wants to have all of the various Ember object types (Controllers, Views, Routers, etc) already attached/registered.
 
 This module helps attach modules to Ember, and makes using your favorite module loaders, async or otherwise, easier. It can create module manifests for multiple namespaces in your application.
 
-This uses an array of default folders (see `emberDirs` below), and `namespace` configurations to generate `manifest` files. Those files contain a list of `require`s for files containing Ember objects.  Once this `manifest` file is brought into your web app you can `advanceReadiness()` and fire up your app.
+This uses an array of default folders (see `emberDirs` below), and `namespace` configurations to generate `manifest` files. Those files contain a list of `require`s for files containing Ember objects. Then, in the manifest, an object is created using the exported values from the `require`d files as values, and the file names as the keys. If a file name is `search_results_controller.js`, then the key would be `SearchResultController`, which matches what Ember would like to see.
+
+See some example outputs below.
 
 [MimosaEmberSkeleton](https://github.com/dbashford/MimosaEmberSkeleton) showcases this module and its use in a require.js application.
 
@@ -29,11 +31,12 @@ This uses an array of default folders (see `emberDirs` below), and `namespace` c
 emberModuleImport: {
   cacheDir: ".mimosa/emberModuleImport",
   amd: true,
+  fileSep: "_"
   apps: [{
     namespace: null,
-    additional: [],
+    additional: ["router"],
     exclude: [],
-    manifestFile: "app-modules"
+    manifestFile: "modules"
   }],
   emberDirs: [
     "adapters",
@@ -54,9 +57,10 @@ emberModuleImport: {
 
 * `cacheDir` - location this module will place its cache information.
 * `amd` - whether the output is in AMD or CommonJS format.  If set to `false`, the output will be CommonJS style.
+* `fileSep` - Character/String used for separating portions of  file name. Ex: tag_editor_controller.js
 * `apps` - an array of the different apps in the project. Each app results in an output module file. This allows you to create multiple module manifests, thereby eventually letting you bundled together multiple sub-apps from the same project.
 * `apps.namespace` - the namespace of the app. namespace is the root folder relative to `watch.javascriptDir`. Everything in that `namespace` will be bundled together into a single module import file. When the `namespace` is `null`, the default, the entire application is used.
-* `apps.additional` - additional files, whether ember files outside of the `namespace` (like common components), or non-ember files inside or outside the `namespace`, to include in the `namespace` `manifest` file. Paths are relative to the `namespace`. Use `../` paths to include files/folders outside the `namespace`.
+* `apps.additional` - additional files, whether ember files outside of the `namespace` (like common components), or non-ember files inside or outside the `namespace`, to include in the `namespace` `manifest` file. Paths are relative to the `namespace`. Use `../` paths to include files/folders outside the `namespace`.  In the default config, `router` is an additional file.  This would pick up a `router.js` sitting in the root of your `namespace`.
 * `apps.exclude` - array of strings or regexes that match files to not include in this `manifest`. Strings are paths that can be relative to the `namespace` or absolute.
 * `apps.manifestFile` - The name of the manifest file to output. `.js` is assumed. Path is relative to `namespace`.
 * `emberDirs` - Ember directories that contain files to include in a manifest file. Any files in these directories or in subdirectories of these directories within a `namespace` will be `require`d in the `manifest` file.
@@ -97,7 +101,7 @@ In this config two applications, namespaced at `user-app` and `search-app`, exis
       ...
 ```
 
-And the output would resemble the following:
+And the output file structure would resemble the following:
 
 ```
 /public
@@ -122,20 +126,37 @@ And the output would resemble the following:
 
 ```javascript
 define( function( require ) {
-  require('./controllers/post_controller');
-  require('./controllers/posts_controller');
-  require('./routes/post_route');
-  require('./routes/posts_route');
+  var _0 = require('./controllers/post_controller');
+  var _1 = require('./helpers/helpers');
+  var _2 = require('./routes/post_route');
+  var _3 = require('./routes/posts_route');
+
+  var modules = {
+    PostController: _0 && (_0['default'] || _0),
+    Helpers: _1 && (_1['default'] || _1),
+    PostRoute: _2 && (_2['default'] || _2),
+    PostsRoute: _3 && (_3['default'] || _3)
+  };
+  return modules;
 });
 ```
 
 ### CommonJS
 
 ```javascript
-require('./controllers/post_controller');
-require('./controllers/posts_controller');
-require('./routes/post_route');
-require('./routes/posts_route');
+var _0 = require('./controllers/post_controller');
+var _1 = require('./helpers/helpers');
+var _2 = require('./routes/post_route');
+var _3 = require('./routes/posts_route');
+
+var modules = {
+  PostController: _0 && (_0['default'] || _0),
+  Helpers: _1 && (_1['default'] || _1),
+  PostRoute: _2 && (_2['default'] || _2),
+  PostsRoute: _3 && (_3['default'] || _3)
+};
+
+module.exports = modules;
 ```
 
 ## To run tests
@@ -146,4 +167,4 @@ require('./routes/posts_route');
 * Run `mimosa mod:install`
 * `npm test`
 
-You may get a `Error: ENOTEMPTY, directory not empty` error with some of the test project directories.  Haven't yet been able to track that down, but if that is the only error you get, you are in good shape.
+You may get a `Error: ENOTEMPTY, directory not empty` error with some of the test project directories.  Haven't yet been able to track that down, but if that is the only error you get, you are in good shape.  But you should run the tests until you get an all clear.

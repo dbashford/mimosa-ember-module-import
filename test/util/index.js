@@ -28,7 +28,7 @@ exports.setupModuleData = function( env, alternateCache, namespace ) {
   if ( namespace ) {
     manifestFile = path.join( env.projectDir, "public", "javascripts", namespace, "modules.js");
   } else {
-    manifestFile = path.join( env.projectDir, "public", "javascripts", "app-modules.js");
+    manifestFile = path.join( env.projectDir, "public", "javascripts", "modules.js");
   }
 
   env.namespaceDir = path.dirname( manifestFile ).replace("public", "assets");

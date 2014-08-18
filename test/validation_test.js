@@ -27,6 +27,7 @@ describe('When starting up', function() {
   it( 'the config should pass validation 1', function() {
     var expected =
       " * emberModuleImport.amd must be a boolean.\n" +
+      " * emberModuleImport.fileSep must be a string.\n" +
       " * emberModuleImport.cacheDir must be a string.\n" +
       " * emberModuleImport.apps must be an array.\n" +
       " * emberModuleImport.emberDirs configuration must be an array. \n";

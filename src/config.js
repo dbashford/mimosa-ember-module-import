@@ -13,7 +13,7 @@ exports.defaults = function() {
         namespace: null,
         additional: ["router"],
         exclude: [],
-        manifestFile: "app-modules"
+        manifestFile: "modules"
       }],
       emberDirs: [
         "adapters",
@@ -53,7 +53,7 @@ exports.placeholder = function() {
            "      exclude:[]                         # array of strings or regexes that match files\n" +
            "                                         # to not include in this manifest. Strings are paths\n" +
            "                                         # that can be relative to the namespace or absolute.\n" +
-           "      manifestFile: \"app-modules\"        # The name of the manifest file to output.\n" +
+           "      manifestFile: \"modules\"        # The name of the manifest file to output.\n" +
            "                                         # '.js' is assumed. Path is relative to namespace\n" +
            "    }],                                  # \n" +
            "    emberDirs: [                         # Ember directories that contain files to\n" +

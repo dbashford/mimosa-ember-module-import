@@ -27,7 +27,7 @@ describe('When there are no ember files', function() {
   });
 
   it( 'the module should notify the user.', function() {
-    var indexOfMessage = standardOut.indexOf("ember-module-import: \u001b[36mpublic/javascripts/app-modules.js\u001b[0m is an empty file.");
+    var indexOfMessage = standardOut.indexOf("ember-module-import: \u001b[36mpublic/javascripts/modules.js\u001b[0m is an empty file.");
     expect( indexOfMessage ).to.be.above( 1000 );
   });
 
