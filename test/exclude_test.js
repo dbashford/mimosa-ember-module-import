@@ -8,6 +8,7 @@ var fs = require( 'fs' )
 utils.setupModuleData( env, null, "blogger"  );
 
 describe('When building from scratch with no cache with an exclude definition', function() {
+  this.timeout(15000);
 
   before(function(done){
     utils.cleanProject( env );
