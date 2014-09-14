@@ -7,7 +7,7 @@ This module will aid in your Ember application development by automatically buil
 
 To see this module in action, check out the [MimosaEmberSkeleton](https://github.com/dbashford/MimosaEmberSkeleton) project.
 
-Note: this module requires mimosa-require `2.2.2` (bundled with mimosa `2.3.1`) to function properly.
+Note: this module requires mimosa-require `2.2.3` (bundled with mimosa `2.3.14`) to function properly.
 
 ## Usage
 
