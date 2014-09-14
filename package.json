@@ -1,6 +1,6 @@
 {
   "name": "mimosa-ember-module-import",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://github.com/dbashford/mimosa-ember-module-import",
   "author": "David Bashford",
   "description": "A Mimosa module builder solution for Ember apps",
