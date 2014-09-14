@@ -28,7 +28,7 @@ var __transformPath = function( namespace, inputFileName ) {
   if ( starters.indexOf(firstChar) === -1 ) {
     relPath = "./" + relPath;
   }
-  relPath = relPath.replace( /.js$/, "" );
+  relPath = relPath.replace( /.js$/, "" ).replace( /\\/g, "/" );
   return relPath;
 };
 
