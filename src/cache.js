@@ -3,12 +3,29 @@
 var fs = require( "fs" )
   , path = require( "path" )
   , wrench = require( "wrench" )
-  , _ = require( "lodash" );
+  , _ = require( "lodash" )
+  , cacheVals = ["additional", "exclude", "emberDirs"];
 
-var makeDirectory = function( folder ) {
+var _makeDirectory = function( folder ) {
   if ( !fs.existsSync( folder ) ) {
     return wrench.mkdirSyncRecursive( folder, 0x1ff );
   }
+};
+
+var _handlePathPreWrite = function( rootPath, f ) {
+  var truncPath = f.replace( rootPath, "" );
+  if ( process.platform === "win32" ) {
+    truncPath = truncPath.split( path.sep ).join( "/" );
+  }
+  return truncPath;
+};
+
+var _handlePathPostRead = function( rootPath, f ) {
+  var fullPath = path.join( rootPath, f );
+  if ( process.platform === "win32" ) {
+    fullPath = fullPath.split("/").join( path.sep );
+  }
+  return fullPath;
 };
 
 // write config cache
@@ -19,22 +36,22 @@ exports.writeCacheConfig = function( mimosaConfig ) {
   var cDir = mimosaConfig.watch.compiledDir;
   var sDir = mimosaConfig.watch.sourceDir;
   cacheConfig = cacheConfig.map( function( acc ) {
-    acc.namespace = acc.namespace.replace( sDir, "" );
-    acc.manifestFile = acc.manifestFile.replace( cDir, "" );
-    ["additional", "exclude", "emberDirs"].forEach( function( key ) {
+    acc.namespace = _handlePathPreWrite( sDir, acc.namespace );
+    acc.manifestFile = _handlePathPreWrite( cDir, acc.manifestFile );
+    cacheVals.forEach( function( key ) {
       if ( acc[key] ) {
         acc[key] = acc[key].map( function( accKey ) {
-          return accKey.replace( sDir, "" );
+          return _handlePathPreWrite( sDir, accKey );
         });
       }
     });
     return acc;
   });
 
-  makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
+  _makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
   fs.writeFileSync(
     mimosaConfig.emberModuleImport.cacheConfig,
-    JSON.stringify( cacheConfig, null, 2) );
+    JSON.stringify( cacheConfig, null, 2 ) );
 };
 
 var _readCacheConfig = function( mimosaConfig ) {
@@ -48,12 +65,12 @@ var _readCacheConfig = function( mimosaConfig ) {
   var cDir = mimosaConfig.watch.compiledDir;
   var sDir = mimosaConfig.watch.sourceDir;
   cacheConfig = cacheConfig.map( function( acc ) {
-    acc.namespace = path.join( sDir, acc.namespace );
-    acc.manifestFile = path.join( cDir, acc.manifestFile );
-    ["additional", "exclude", "emberDirs"].forEach( function( key ) {
+    acc.namespace = _handlePathPostRead( sDir, acc.namespace );
+    acc.manifestFile = _handlePathPostRead( cDir, acc.manifestFile );
+    cacheVals.forEach( function( key ) {
       if ( acc[key] ) {
         acc[key] = acc[key].map( function( accKey ) {
-          return path.join( sDir, accKey );
+          return _handlePathPostRead( sDir, accKey );
         });
       }
     });
@@ -77,9 +94,9 @@ exports.readCache = function( mimosaConfig ) {
     // paths back to full paths
     var newCacheData = {};
     Object.keys( cacheData ).forEach( function( key ) {
-      var newKey = path.join( mimosaConfig.watch.compiledDir, key );
+      var newKey = _handlePathPostRead( mimosaConfig.watch.compiledDir, key );
       newCacheData[newKey] = cacheData[key].map( function( p ) {
-        return path.join( mimosaConfig.watch.sourceDir, p);
+        return _handlePathPostRead( mimosaConfig.watch.sourceDir, p );
       });
     });
     mimosaConfig.emberModuleImport.cacheData = newCacheData;
@@ -95,14 +112,14 @@ exports.writeCache = function( mimosaConfig, manifestConfigs, done ) {
   // convert to relative paths to manage diffs across project teams
   var newCacheObject = {};
   Object.keys( cacheObject ).forEach( function( key ) {
-    var newKey = key.replace( mimosaConfig.watch.compiledDir, "" );
+    var newKey = _handlePathPreWrite( mimosaConfig.watch.compiledDir, key );
     newCacheObject[newKey] = cacheObject[key].map( function( p ) {
-      return p.replace( mimosaConfig.watch.sourceDir, "" );
+      return _handlePathPreWrite( mimosaConfig.watch.sourceDir, p );
     });
   });
 
   var cacheString = JSON.stringify( newCacheObject, null, 2 );
-  makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
+  _makeDirectory( mimosaConfig.emberModuleImport.cacheDir );
   fs.writeFile( mimosaConfig.emberModuleImport.cacheFile, cacheString, function(err) {
     if ( err ) {
       mimosaConfig.log.error( "ember-module-import: Error writing cache file", err );

@@ -5,7 +5,7 @@ var path = require( "path" )
   , _ = require( "lodash" )
   , moduleConfig = require( "./config" )
   , cache = require( "./cache" )
-  , starters = [".","\\","/"]
+  , starters = [".", "\\", "/"]
   , appManifestConfig = []
   , compiledTemplate;
 
