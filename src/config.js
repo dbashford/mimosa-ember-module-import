@@ -1,7 +1,6 @@
 "use strict";
 
-var path = require( "path" )
-  , cache = require( "./cache" );
+var path = require( "path" );
 
 exports.defaults = function() {
   return {
@@ -138,15 +137,6 @@ exports.validate = function ( mimosaConfig, validators ) {
         app.emberDirs = app.emberDirs.concat( app.additional );
       }
     });
-
-    // is watch, need to deal with cache
-    // build will recompile everything so no need for cache
-    if ( mimosaConfig.isWatch ) {
-      cache.readCache( mimosaConfig );
-      cache.validateCache( mimosaConfig );
-    }
-
-    cache.writeCacheConfig( mimosaConfig );
   }
 
   return errors;

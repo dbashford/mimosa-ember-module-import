@@ -330,6 +330,17 @@ var registration = function (mimosaConfig, register) {
   // files and clear the cache
   register( [ "preClean" ], "init", _clean );
 
+  // is watch, need to deal with cache
+  // build will recompile everything so no need for cache
+  register( [ "preBuild" ], "init", function( mimosaConfig, options, next) {
+    if ( mimosaConfig.isWatch ) {
+      cache.readCache( mimosaConfig );
+      cache.validateCache( mimosaConfig );
+    }
+    cache.writeCacheConfig( mimosaConfig );
+    next();
+  });
+
   // at beginning of build need to check status
   // of cache and manifestFiles and create
   // in memory data object that will hold
