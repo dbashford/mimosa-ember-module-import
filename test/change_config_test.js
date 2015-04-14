@@ -54,7 +54,7 @@ describe('When building from scratch with no cache', function() {
     }
     var cacheConfigJSON = require( env.cacheConfig );
     expect(Object.keys(cacheConfigJSON[0]).length).to.equal(5);
-    expect(cacheConfigJSON[0].emberDirs.length).to.equal(12);
+    expect(cacheConfigJSON[0].emberDirs.length).to.equal(13);
   });
 
   describe( 'and then changing the config between runs', function() {
