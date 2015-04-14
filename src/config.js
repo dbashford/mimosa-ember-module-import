@@ -24,6 +24,7 @@ exports.defaults = function() {
         "models",
         "routes",
         "serializers",
+        "services",
         "transforms",
         "utils",
         "views"
@@ -65,6 +66,7 @@ exports.placeholder = function() {
            "      \"models\",\n" +
            "      \"routes\",\n" +
            "      \"serializers\",\n" +
+           "      \"services\",\n" +
            "      \"transforms\",\n" +
            "      \"utils\",\n" +
            "      \"views\"\n" +
