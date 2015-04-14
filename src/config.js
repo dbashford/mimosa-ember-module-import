@@ -33,48 +33,6 @@ exports.defaults = function() {
   };
 };
 
-exports.placeholder = function() {
-  var ph = "  emberModuleImport:                         # settings for ember-resolver module\n" +
-           "    cacheDir:\".mimosa/emberModuleImport\"     # location to place cache. To not cache, set\n" +
-           "                                         # this to null. Path is relative to project root.\n" +
-           "    amd: true                            # Whether or not the output is AMD or commonjs.\n" +
-           "                                         # set to false for commonjs\n" +
-           "    fileSep: \"_\"                         # Character/String used for separating portions of\n" +
-           "                                         # file name. Ex: tag_editor_controller.js\n" +
-           "    apps: [{                             # list of apps to create manifests for, one entry\n" +
-           "                                         # in the array for each app in your mimosa project\n" +
-           "      namespace: null,                   # the namespace of the app to create a manifest\n" +
-           "                                         # for. namespace = root folder. If namespace is null\n" +
-           "                                         # the entire project is used. namespace is relative\n" +
-           "                                         # to watch.javascriptDir.\n" +
-           "      additional: [\"router\"],            # Paths to additional/shared resources to include in the\n" +
-           "                                         # manifest. Paths are relative to the namespace. Use '../'\n" +
-           "                                         # paths to include files/folders outside the namespace\n" +
-           "      exclude:[]                         # array of strings or regexes that match files\n" +
-           "                                         # to not include in this manifest. Strings are paths\n" +
-           "                                         # that can be relative to the namespace or absolute.\n" +
-           "      manifestFile: \"modules\"        # The name of the manifest file to output.\n" +
-           "                                         # '.js' is assumed. Path is relative to namespace\n" +
-           "    }],                                  # \n" +
-           "    emberDirs: [                         # Ember directories that contain files to\n" +
-           "      \"adapters\",                        # include in a manifest file. Any files in\n" +
-           "      \"components\",                      # these directories or in subdirectories of\n" +
-           "      \"controllers\",                     # these directories within a namespace will\n" +
-           "      \"helpers\",                         # be require'd in the manifest file.\n" +
-           "      \"initializers\",\n" +
-           "      \"mixins\",\n" +
-           "      \"models\",\n" +
-           "      \"routes\",\n" +
-           "      \"serializers\",\n" +
-           "      \"services\",\n" +
-           "      \"transforms\",\n" +
-           "      \"utils\",\n" +
-           "      \"views\"\n" +
-           "    ]\n";
-
-  return ph;
-};
-
 exports.validate = function ( mimosaConfig, validators ) {
   var errors = []
     , er = mimosaConfig.emberModuleImport;
